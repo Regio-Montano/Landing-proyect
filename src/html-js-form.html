@@ -1,0 +1,154 @@
+<!-- 
+    ¡ATENCIÓN! Este es el código para HTML/JS puro. 
+    NO LO USES SI ESTÁS TRABAJANDO CON REACT. 
+    Si estás en React, usa el componente ModernLeadForm.js.
+-->
+
+<section id="lead" style="max-width:640px;margin:0 auto;padding:24px; background-color: #fff; border-radius: 12px; box-shadow: 0 4px 6px(0,0,0,0.1);">
+  <h2 style="font-size:28px;line-height:1.2;margin:0 0 12px; text-align: center; color: #1a202c;">¡Regístrate ahora!</h2>
+  <p style="margin:0 0 20px;color:#555; text-align: center;">Accede al entrenamiento de trading y contenidos exclusivos.</p>
+
+  <form id="leadForm" style="display:grid;gap:16px">
+    <!-- Honeypot (anti-bots): mantener oculto -->
+    <input type="text" name="hp" id="hp" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
+
+    <div style="position:relative;">
+      <!-- Icono de usuario (simulado, ya que lucide-react no está disponible en HTML puro) -->
+      <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a0aec0;">👤</span>
+      <input type="text" name="name" id="name" placeholder="Tu Nombre" required
+             style="padding:12px 14px 12px 48px;border:1px solid #ddd;border-radius:10px;font-size:16px;width:100%;box-sizing:border-box;">
+    </div>
+
+    <div style="position:relative;">
+      <!-- Icono de teléfono -->
+      <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a0aec0;">📞</span>
+      <input type="tel" name="phone" id="phone" placeholder="Tu Teléfono" required
+             style="padding:12px 14px 12px 48px;border:1px solid #ddd;border-radius:10px;font-size:16px;width:100%;box-sizing:border-box;">
+    </div>
+
+    <div style="position:relative;">
+      <!-- Icono de correo -->
+      <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#a0aec0;">✉️</span>
+      <input type="email" name="email" id="email" placeholder="Tu Correo Electrónico" required
+             style="padding:12px 14px 12px 48px;border:1px solid #ddd;border-radius:10px;font-size:16px;width:100%;box-sizing:border-box;">
+    </div>
+
+    <label style="display:flex;gap:8px;align-items:flex-start;font-size:14px;color:#444">
+      <input type="checkbox" id="consent" required style="margin-top:4px;">
+      Acepto ser contactado y recibir información del curso.
+    </label>
+
+    <button id="submitBtn" type="submit"
+            style="padding:12px 16px;border:0;border-radius:12px;background:linear-gradient(to right, #2563eb, #7c3aed);color:#fff;font-weight:600;cursor:pointer;transition:all 0.3s ease;">
+      ¡Quiero registrarme gratis!
+    </button>
+
+    <div id="msg" role="alert" style="font-size:14px;min-height:20px;text-align:center;"></div>
+  </form>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/23.0.0/js/intlTelInput.min.js"></script>
+<script>
+  // 🔗 Pega aquí tu URL de Google Apps Script (la que termina en /exec)
+  const scriptURL = "https://script.google.com/macros/s/AKfycbw2cRAm_dOBCxw7HJLdXbkntQpyO6Tq-7lS-f6DYgqPffAmkXMsyww5-xOVZshbi5Ea2g/exec";
+
+  const form = document.getElementById('leadForm');
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('msg'); // Asegúrate de que este ID exista en tu HTML
+  const phoneInput = document.getElementById('phone');
+
+  // Inicializar intl-tel-input
+  const iti = intlTelInput(phoneInput, {
+    initialCountry: "mx", // País inicial (México)
+    preferredCountries: ["mx", "co", "ar", "cl", "pe", "ec", "ve", "uy", "py", "bo", "pa", "cr", "sv", "gt", "hn", "ni", "do", "cu", "bz", "pr"], // Países preferidos
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/23.0.0/js/utils.js", // Script de utilidades
+    separateDialCode: true, // Muestra el código de marcación separado
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Honeypot: si trae algo, no enviamos
+    if (document.getElementById('hp').value.trim() !== "") {
+      console.log("Bot detectado (honeypot). No se envía el formulario.");
+      return;
+    }
+
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+
+    const name  = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    
+    // Captura el número completo, código de país y nombre del país
+    const fullPhoneNumber = iti.getNumber(); 
+    const countryData = iti.getSelectedCountryData(); 
+    const countryCode = `+${countryData.dialCode}`;
+    const country = countryData.name;
+
+    // Validaciones frontend
+    if (name.length < 2) {
+      msg.textContent = "El nombre debe tener al menos 2 caracteres.";
+      msg.style.color = "#DC2626"; // rojo
+      return;
+    }
+    if (!iti.isValidNumber()) { // Usar la validación de intl-tel-input
+      msg.textContent = "Ingresa un número de teléfono válido.";
+      msg.style.color = "#DC2626";
+      return;
+    }
+    if (!isValidEmail(email)) {
+      msg.textContent = "Ingresa un correo electrónico válido.";
+      msg.style.color = "#DC2626";
+      return;
+    }
+
+    // Estado "enviando"
+    btn.disabled = true;
+    if (msg) { msg.textContent = "Enviando…"; msg.style.color = "#999"; }
+
+    try {
+      const payload = {
+        name,
+        phone: fullPhoneNumber, // Enviamos el número completo
+        email,
+        countryCode, // Enviamos el código de país
+        country // Enviamos el nombre del país
+      };
+
+      const res = await fetch(scriptURL, {
+        method: "POST",
+        // 👇 MUY IMPORTANTE: evita el preflight y cumple con tu Apps Script
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+
+      // Si el servidor responde HTML por error, esto evitará romper el JSON parse
+      let data = {};
+      try { data = await res.json(); } catch { data = {}; }
+
+      console.log("Respuesta del backend:", res.status, data);
+
+      if (res.ok && data?.result === "success") {
+        if (msg) { msg.textContent = "✅ ¡Registro exitoso!"; msg.style.color = "#16A34A"; }
+        form.reset(); // Limpiar campos
+        iti.setNumber(""); // Limpiar el input de teléfono de intl-tel-input
+        iti.setCountry("mx"); // Volver al país inicial
+      } else {
+        throw new Error(data?.message || `Respuesta no válida del servidor (status ${res.status})`);
+      }
+    } catch (err) {
+      console.error("Error al enviar:", err);
+      if (msg) { msg.textContent = "❌ No pudimos enviar tus datos. Inténtalo de nuevo."; msg.style.color = "#DC2626"; }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "¡Quiero registrarme gratis!"; // Restaurar texto del botón
+    }
+  });
+
+  // Función para validar email (se mantiene)
+  const isValidEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+</script>
