@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, User, Phone, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 // 👇 Tu URL de Google Apps Script (la /exec)
-const scriptURL = 'https://script.google.com/macros/s/AKfycbwRxV0Tvx9Z3tdi2-w_hWq4Tyj3fWIjPjf93Sy-ofiytOOee-QnghcCMRFnximfedvR/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbz61M0eocxkWpUmhUPpngnHk_0MNBN5H4J2jO_w97F2yx7ZkWjM0y-zJMT-WaygubBwsQ/exec';
 
 const LeadForm = ({ motivationText = "¡Regístrate Ahora!" }) => {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
