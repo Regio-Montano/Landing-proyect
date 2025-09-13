@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, Phone, CheckCircle2, AlertTriangle } from 'lucide-react';
-https://script.google.com/macros/s/AKfycbw2cRAm_dOBCxw7HJLdXbkntQpyO6Tq-7lS-f6DYgqPffAmkXMsyww5-xOVZshbi5Ea2g/exec
+https://script.google.com/macros/s/AKfycbwRxV0Tvx9Z3tdi2-w_hWq4Tyj3fWIjPjf93Sy-ofiytOOee-QnghcCMRFnximfedvR/exec
 const LeadForm = ({ motivationText = "¡Regístrate Ahora!" }) => {
   const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
