@@ -12,7 +12,7 @@ export async function handler(event, context) {
     const data = JSON.parse(event.body);
 
     // URL de tu Google Apps Script
-    const scriptURL = "https://script.google.com/macros/s/AKfycbznAD0fxgHUvELOemoPd9hFdCyiuRRXGiAG5Z-M1NUyL-0q2_ywnM8jBxx2xnipyUd2zw/exec"
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzU9b9LKza2bHSfV7_5X6K5wwSrj0StgOG9q19A9UrJGdyUscmRu7t1zP3nT3WivJDtHA/exec"
 
     // Redirigir los datos al Apps Script
     const response = await fetch(scriptURL, {
