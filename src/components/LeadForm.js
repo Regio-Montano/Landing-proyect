@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, Phone, CheckCircle2, AlertTriangle } from 'lucide-react';
 
-// 👉 La petición irá a tu función serverless de Netlify
+// URL de la petición a tu función serverless de Netlify
 const scriptURL = '/.netlify/functions/submit';
 
 const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
@@ -10,7 +10,7 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
     name: '',
     phone: '',
     email: '',
-    country: '', // opcional
+    country: '' // opcional
   });
 
   const [loading, setLoading] = useState(false);
@@ -24,8 +24,8 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (loading) return;
+
     setSubmitted(false);
     setError('');
     setLoading(true);
@@ -58,13 +58,15 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
       {submitted ? (
         <motion.div
           className="text-center py-10"
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
           <CheckCircle2 className="w-12 h-12 mx-auto text-green-500 mb-3" />
           <h3 className="text-xl font-bold">¡Registro exitoso!</h3>
-          <p className="text-gray-600 mt-1">Hemos recibido tus datos.</p>
+          <p className="text-gray-600 mt-1">
+            Hemos recibido tus datos. Pronto nos pondremos en contacto contigo.
+          </p>
         </motion.div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,13 +77,14 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
               animate={{ opacity: 1 }}
             >
               <AlertTriangle className="w-10 h-10 mx-auto text-red-500 mb-2" />
-              <p className="text-red-600 font-medium">
-                ¡Ups! Algo salió mal.
-              </p>
+              <p className="text-red-600 font-medium">¡Ups! Algo salió mal.</p>
               <p className="text-gray-600 text-sm">Inténtalo de nuevo más tarde.</p>
             </motion.div>
           )}
 
+          <h3 className="text-center text-lg font-extrabold">{motivationText}</h3>
+
+          {/* Nombre */}
           <div className="relative">
             <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
@@ -90,11 +93,14 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
               placeholder="Tu Nombre"
               value={formData.name}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                         bg-white text-gray-900 placeholder-gray-500 caret-indigo-600"
               required
             />
           </div>
 
+          {/* Teléfono */}
           <div className="relative">
             <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
@@ -103,11 +109,14 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
               placeholder="Tu Teléfono"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                         bg-white text-gray-900 placeholder-gray-500 caret-indigo-600"
               required
             />
           </div>
 
+          {/* Correo */}
           <div className="relative">
             <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
@@ -116,29 +125,34 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
               placeholder="Tu Correo Electrónico"
               value={formData.email}
               onChange={handleChange}
-              className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+              className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                         bg-white text-gray-900 placeholder-gray-500 caret-indigo-600"
               required
             />
           </div>
 
           {/* Campo opcional */}
-          {/* 
           <input
             type="text"
             name="country"
             placeholder="País (opcional)"
             value={formData.country}
             onChange={handleChange}
-            className="w-full px-3 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            className="w-full px-3 py-3 rounded-md border border-gray-300 
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                       bg-white text-gray-900 placeholder-gray-500 caret-indigo-600"
           />
-          */}
 
+          {/* Botón */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-md font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-95 disabled:opacity-60"
+            className="w-full py-3 rounded-md font-semibold text-white 
+                       bg-gradient-to-r from-indigo-500 to-purple-500 
+                       hover:opacity-95 disabled:opacity-50"
           >
-            {loading ? 'Enviando…' : '¡Quiero registrarme gratis!'}
+            {loading ? 'Enviando...' : '¡Quiero registrarme gratis!'}
           </button>
         </form>
       )}
