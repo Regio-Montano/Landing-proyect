@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail, User, CheckCircle2, AlertTriangle, Loader } from 'lucide-react';
 
 // ✅ URL REAL DE GOOGLE APPS SCRIPT
-const SCRIPT_URL = https://script.google.com/macros/s/AKfycbwN7NjIBazWyqAPScJ4sXC_gA4dadx3lxCZN1aOhMv1HL3zKc7vJbGsKqLKaGwUgVMZaQ/exec;
+const SCRIPT_URL = https://script.google.com/macros/s/AKfycbzvTa4fE_Fy7S2YRUNXwoREwqAF2sT_OjAQzLGjvtnpVN-TGg_ZnDsdX-6COXdyJ6RgBA/exec
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
