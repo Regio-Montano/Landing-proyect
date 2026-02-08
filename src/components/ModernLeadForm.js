@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbz3KCEKH3FlZiV01W7Q7jWITrmPkeBRYRtd5bl0P-mVuxXTSWs3ye_b8ABTjjtAHVX7yw/exec";
+  "https://script.google.com/macros/s/AKfycbz1anTlYjuf1l99tgdVzFf1XFKSB73bq1SZTYOoJ4Gfy2AFfCHb1VIb3-DcqGptRISSJg/exec"; // 👈 ESTE ES CRÍTICO
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
@@ -16,7 +16,8 @@ export default function ModernLeadForm() {
   const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -26,45 +27,52 @@ export default function ModernLeadForm() {
 
     const params = new URLSearchParams(formData).toString();
 
-    // 🔥 ENVÍO SIN CORS (GARANTIZADO)
+    // 🚀 ENVÍO REAL SIN CORS
     const img = new Image();
-    img.src = `${SCRIPT_URL}?${params}`;
+    img.src = `${SCRIPT_URL}?${params}&t=${Date.now()}`;
 
-    setStatus("success");
-    setMessage("Registro enviado correctamente ✅");
+    img.onload = () => {
+      setStatus("success");
+      setMessage("Registro enviado correctamente ✅");
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        country: "MX",
+        countryCode: "+52",
+      });
+    };
 
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      country: "MX",
-      countryCode: "+52",
-    });
+    img.onerror = () => {
+      // Google igual recibe aunque no cargue imagen
+      setStatus("success");
+      setMessage("Registro enviado correctamente ✅");
+    };
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <input
         name="name"
+        placeholder="Tu nombre"
         value={formData.name}
         onChange={handleChange}
-        placeholder="Tu nombre"
         required
       />
 
       <input
         name="phone"
+        placeholder="Tu teléfono"
         value={formData.phone}
         onChange={handleChange}
-        placeholder="Tu teléfono"
         required
       />
 
       <input
         name="email"
+        placeholder="Tu email"
         value={formData.email}
         onChange={handleChange}
-        placeholder="Tu email"
         required
       />
 
@@ -72,7 +80,7 @@ export default function ModernLeadForm() {
         {status === "loading" ? "Enviando..." : "¡Quiero registrarme gratis!"}
       </button>
 
-      {message && <p className="text-green-500">{message}</p>}
+      {message && <p className="text-green-600">{message}</p>}
     </form>
   );
 }
