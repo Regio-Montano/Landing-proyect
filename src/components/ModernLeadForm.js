@@ -94,9 +94,19 @@ export default function ModernLeadForm() {
       });
 
       const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: params,
-      });
+  method: 'POST',
+  body: params,
+});
+
+const text = await res.text(); // 👈 CLAVE
+let data;
+
+try {
+  data = JSON.parse(text);
+} catch (e) {
+  console.error('Respuesta NO JSON del script:', text);
+  throw new Error('Respuesta inválida del servidor');
+}
 
       const data = await res.json();
 
