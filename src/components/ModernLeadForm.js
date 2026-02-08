@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SCRIPT_URL =
-  https://script.google.com/macros/s/AKfycbwSLODjz0EUYoxTgWaY-uTN2_dIlFZ_UAZ8Zo_SOiV1iY6qpOh7TkMvVKKMeAI5rYqJRQ/exec;
+  "https://script.google.com/macros/s/AKfycbSL0Dj2UEYoxTgW4y-UNZ_dlFZ_uAZ8zo_S0iV1Y6qphT7KMWKHcAIsFyqJRQ/exec";
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ export default function ModernLeadForm() {
     countryCode: "+52",
   });
 
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
@@ -38,7 +38,7 @@ export default function ModernLeadForm() {
 
       if (result.success) {
         setStatus("success");
-        setMessage("✅ Registro enviado correctamente");
+        setMessage("¡Registro enviado correctamente!");
         setFormData({
           name: "",
           phone: "",
@@ -52,7 +52,7 @@ export default function ModernLeadForm() {
     } catch (err) {
       console.error(err);
       setStatus("error");
-      setMessage("❌ No se pudo enviar el formulario");
+      setMessage("No se pudo enviar el formulario");
     }
   };
 
@@ -60,28 +60,28 @@ export default function ModernLeadForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <input
         name="name"
+        placeholder="Nombre"
         value={formData.name}
         onChange={handleChange}
-        placeholder="Nombre completo"
         required
         className="w-full p-3 rounded"
       />
 
       <input
         name="phone"
+        placeholder="Teléfono"
         value={formData.phone}
         onChange={handleChange}
-        placeholder="Teléfono"
         required
         className="w-full p-3 rounded"
       />
 
       <input
-        name="email"
         type="email"
+        name="email"
+        placeholder="Email"
         value={formData.email}
         onChange={handleChange}
-        placeholder="Email"
         required
         className="w-full p-3 rounded"
       />
@@ -94,12 +94,16 @@ export default function ModernLeadForm() {
         {status === "loading" ? "Enviando..." : "¡Quiero registrarme gratis!"}
       </button>
 
-      {status === "error" && (
-        <div className="bg-red-100 text-red-700 p-3 rounded">{message}</div>
+      {status === "success" && (
+        <div className="p-3 bg-green-100 text-green-700 rounded">
+          {message}
+        </div>
       )}
 
-      {status === "success" && (
-        <div className="bg-green-100 text-green-700 p-3 rounded">{message}</div>
+      {status === "error" && (
+        <div className="p-3 bg-red-100 text-red-700 rounded">
+          {message}
+        </div>
       )}
     </form>
   );
