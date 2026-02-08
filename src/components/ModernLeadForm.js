@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzxQ3WAwAiwEASNVzsp5JmEmpgLH1gZVnRHO0gylMqALmBZYswlNzXKGctuAeTO9-yTyw/exec";
+  "https://script.google.com/macros/s/AKfycbx3va8piEP6nu4QCBctEyClWx4mmaTcQL0kp1rwoKs1mtw8y4JlF_islBWm6c4gYhlnDQ/exec";
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
@@ -27,12 +27,11 @@ export default function ModernLeadForm() {
 
     const params = new URLSearchParams(formData).toString();
 
-    // ✅ BEACON SIN CORS (GOOGLE SIEMPRE LO RECIBE)
+    // 🚀 ENVÍO REAL A GOOGLE SHEETS
     const img = new Image();
     img.src = `${SCRIPT_URL}?${params}`;
 
-    // No dependemos del onload para éxito
-    setTimeout(() => {
+    img.onload = () => {
       setStatus("success");
       setMessage("Registro enviado correctamente ✅");
       setFormData({
@@ -42,64 +41,44 @@ export default function ModernLeadForm() {
         country: "MX",
         countryCode: "+52",
       });
-    }, 300);
+    };
+
+    img.onerror = () => {
+      // Google igual recibe el dato
+      setStatus("success");
+      setMessage("Registro enviado correctamente ✅");
+    };
   };
 
   return (
-    <form onSubmit={handleSubmit} autoComplete="off">
+    <form onSubmit={handleSubmit}>
       <input
-        type="text"
         name="name"
-        placeholder="Nombre completo"
         value={formData.name}
         onChange={handleChange}
+        placeholder="Nombre"
         required
-        style={{
-          color: "#000",
-          backgroundColor: "#fff",
-        }}
       />
-
       <input
-        type="tel"
         name="phone"
-        placeholder="Teléfono"
         value={formData.phone}
         onChange={handleChange}
+        placeholder="Teléfono"
         required
-        style={{
-          color: "#000",
-          backgroundColor: "#fff",
-        }}
       />
-
       <input
-        type="email"
         name="email"
-        placeholder="Email"
         value={formData.email}
         onChange={handleChange}
+        placeholder="Email"
         required
-        style={{
-          color: "#000",
-          backgroundColor: "#fff",
-        }}
       />
 
-      <button type="submit" disabled={status === "loading"}>
+      <button type="submit">
         {status === "loading" ? "Enviando..." : "¡Quiero registrarme gratis!"}
       </button>
 
-      {message && (
-        <p
-          style={{
-            marginTop: "10px",
-            color: status === "success" ? "green" : "red",
-          }}
-        >
-          {message}
-        </p>
-      )}
+      {message && <p>{message}</p>}
     </form>
   );
 }
