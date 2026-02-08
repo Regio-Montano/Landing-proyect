@@ -1,19 +1,19 @@
-/* global intlTelInput, intlTelInputUtils */
-
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, CheckCircle2, AlertTriangle, Loader } from 'lucide-react';
 
-// ✅ URL REAL DE GOOGLE APPS SCRIPT
-const SCRIPT_URL = https://script.google.com/macros/s/AKfycbzvTa4fE_Fy7S2YRUNXwoREwqAF2sT_OjAQzLGjvtnpVN-TGg_ZnDsdX-6COXdyJ6RgBA/exec
+// 🔴 URL DE TU GOOGLE APPS SCRIPT (NO CAMBIAR)
+const SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbyK-9kmog8xWztqKfVec_RMSTIMw85S57av8OBJ7bobAZ3vwdI7jfkLCU3C--5-LUwhmQ/exec';
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
     name: '',
+    phone: '',
     email: '',
     country: 'Mexico',
     countryCode: '+52',
-    hp: '' // honeypot
+    hp: '', // honeypot
   });
 
   const [formStatus, setFormStatus] = useState('idle'); // idle | submitting | success | error
@@ -22,7 +22,7 @@ export default function ModernLeadForm() {
   const phoneInputRef = useRef(null);
   const itiRef = useRef(null);
 
-  // 🔹 Inicializar intl-tel-input (FORMA CORRECTA)
+  // 🔹 Inicializar intl-tel-input
   useEffect(() => {
     if (phoneInputRef.current && window.intlTelInput) {
       itiRef.current = window.intlTelInput(phoneInputRef.current, {
@@ -30,40 +30,51 @@ export default function ModernLeadForm() {
         separateDialCode: true,
         preferredCountries: [
           'mx','co','ar','cl','pe','ec','ve','uy','py','bo',
-          'pa','cr','sv','gt','hn','ni','do','cu','bz','pr'
+          'pa','cr','sv','gt','hn','ni','do','cu','bz','pr',
         ],
-        utilsScript:
-          'https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js',
       });
-    }
 
-    return () => {
-      itiRef.current?.destroy();
-    };
+      const updatePhoneData = () => {
+        const iti = itiRef.current;
+        if (!iti) return;
+
+        const number = iti.getNumber();
+        const countryData = iti.getSelectedCountryData();
+
+        setFormData(prev => ({
+          ...prev,
+          phone: number,
+          country: countryData.name,
+          countryCode: `+${countryData.dialCode}`,
+        }));
+      };
+
+      phoneInputRef.current.addEventListener('change', updatePhoneData);
+      phoneInputRef.current.addEventListener('countrychange', updatePhoneData);
+
+      return () => {
+        phoneInputRef.current?.removeEventListener('change', updatePhoneData);
+        phoneInputRef.current?.removeEventListener('countrychange', updatePhoneData);
+        itiRef.current?.destroy();
+      };
+    }
   }, []);
 
+  // 🔹 Inputs normales
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // 🚀 SUBMIT — SIN JSON, SIN HEADERS (CORS FIX)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🛑 Honeypot
+    // 🛑 Honeypot anti-bots
     if (formData.hp.trim()) return;
 
     const iti = itiRef.current;
-    if (!iti) {
-      setFormStatus('error');
-      setFormMessage('Error interno del teléfono.');
-      return;
-    }
-
-    // ✅ NÚMERO REAL EN FORMATO INTERNACIONAL
-    const fullPhone = iti.getNumber(intlTelInputUtils.numberFormat.E164);
-
-    if (!fullPhone) {
+    if (!iti || !iti.isValidNumber()) {
       setFormStatus('error');
       setFormMessage('❌ Ingresa un teléfono válido.');
       return;
@@ -73,45 +84,43 @@ export default function ModernLeadForm() {
     setFormMessage('Enviando…');
 
     try {
-      const countryData = iti.getSelectedCountryData();
-
-      const payload = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: fullPhone,              // 👈 +525537207627
-        country: countryData.name,
-        countryCode: `+${countryData.dialCode}`,
-      };
+      // 🔥 FORMA CORRECTA PARA GOOGLE APPS SCRIPT
+      const params = new URLSearchParams({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        country: formData.country,
+        countryCode: formData.countryCode,
+      });
 
       const res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: params,
       });
 
-      const text = await res.text();
-      const data = JSON.parse(text);
+      const data = await res.json();
 
-      if (res.ok && data.success) {
+      if (data.success) {
         setFormStatus('success');
-        setFormMessage('✅ ¡Registro exitoso!');
+        setFormMessage('✅ ¡Registro exitoso! Pronto te contactaremos.');
 
         setFormData({
           name: '',
+          phone: '',
           email: '',
           country: 'Mexico',
           countryCode: '+52',
-          hp: ''
+          hp: '',
         });
 
         iti.setNumber('');
         iti.setCountry('mx');
       } else {
-        throw new Error(data.error || 'Error al guardar');
+        throw new Error(data.error || 'Error desconocido');
       }
 
     } catch (err) {
-      console.error(err);
+      console.error('Submit error:', err);
       setFormStatus('error');
       setFormMessage('❌ No se pudo enviar el formulario.');
     }
@@ -119,11 +128,11 @@ export default function ModernLeadForm() {
 
   return (
     <motion.div
-      className="bg-white/90 backdrop-blur-xl border rounded-3xl p-8 shadow-xl max-w-md mx-auto"
+      className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 shadow-xl max-w-md mx-auto"
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <h2 className="text-3xl font-bold text-center mb-4">
+      <h2 className="text-3xl font-bold text-center mb-6">
         ¡Regístrate ahora!
       </h2>
 
@@ -137,6 +146,7 @@ export default function ModernLeadForm() {
           onChange={handleChange}
           className="hidden"
           tabIndex="-1"
+          autoComplete="off"
         />
 
         {/* Nombre */}
@@ -145,20 +155,22 @@ export default function ModernLeadForm() {
           <input
             type="text"
             name="name"
+            placeholder="Tu nombre"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Tu nombre"
             required
-            className="w-full pl-12 py-3 rounded-xl border text-black bg-white"
+            className="w-full pl-12 py-3 rounded-xl border"
+            disabled={formStatus === 'submitting'}
           />
         </div>
 
-        {/* Teléfono (NO CONTROLADO POR REACT) */}
+        {/* Teléfono */}
         <input
           type="tel"
           ref={phoneInputRef}
           placeholder="Teléfono"
-          className="w-full py-3 px-4 rounded-xl border text-black bg-white"
+          className="w-full py-3 px-4 rounded-xl border"
+          disabled={formStatus === 'submitting'}
         />
 
         {/* Email */}
@@ -167,25 +179,27 @@ export default function ModernLeadForm() {
           <input
             type="email"
             name="email"
+            placeholder="Tu email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Tu email"
             required
-            className="w-full pl-12 py-3 rounded-xl border text-black bg-white"
+            className="w-full pl-12 py-3 rounded-xl border"
+            disabled={formStatus === 'submitting'}
           />
         </div>
 
+        {/* Botón */}
         <button
           type="submit"
           disabled={formStatus === 'submitting'}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold flex items-center justify-center gap-2"
         >
           {formStatus === 'submitting'
-            ? <Loader className="animate-spin mx-auto" />
-            : '¡Quiero registrarme gratis!'
-          }
+            ? <Loader className="animate-spin" />
+            : '¡Quiero registrarme gratis!'}
         </button>
 
+        {/* Mensaje */}
         {formMessage && (
           <div
             className={`p-3 rounded-lg text-sm flex items-center gap-2 ${
@@ -196,8 +210,7 @@ export default function ModernLeadForm() {
           >
             {formStatus === 'success'
               ? <CheckCircle2 size={18} />
-              : <AlertTriangle size={18} />
-            }
+              : <AlertTriangle size={18} />}
             {formMessage}
           </div>
         )}
