@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, User, Phone, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 // URL de la petición a tu función serverless de Netlify
-const scriptURL = '/.netlify/functions/submit';
+const scriptURL = https://script.google.com/macros/s/AKfycbyK-9kmog8xWztqKfVec_RMSTIMw85S57av8OBJ7bobAZ3vwdI7jfkLCU3C--5-LUwhmQ/exec
 
 const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
   const [formData, setFormData] = useState({
@@ -37,7 +37,8 @@ const LeadForm = ({ motivationText = '¡Regístrate Ahora!' }) => {
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      const text = await response.text();
+const result = JSON.parse(text);;
 
       if (response.ok && result.success) {
         setSubmitted(true);
