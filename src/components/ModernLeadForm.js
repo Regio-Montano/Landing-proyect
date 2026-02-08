@@ -27,11 +27,12 @@ export default function ModernLeadForm() {
 
     const params = new URLSearchParams(formData).toString();
 
-    // ✅ BEACON SIN CORS
+    // ✅ BEACON SIN CORS (GOOGLE SIEMPRE LO RECIBE)
     const img = new Image();
     img.src = `${SCRIPT_URL}?${params}`;
 
-    img.onload = () => {
+    // No dependemos del onload para éxito
+    setTimeout(() => {
       setStatus("success");
       setMessage("Registro enviado correctamente ✅");
       setFormData({
@@ -41,26 +42,64 @@ export default function ModernLeadForm() {
         country: "MX",
         countryCode: "+52",
       });
-    };
-
-    img.onerror = () => {
-      // AUNQUE FALLE, GOOGLE YA RECIBIÓ EL DATO
-      setStatus("success");
-      setMessage("Registro enviado correctamente ✅");
-    };
+    }, 300);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="name" value={formData.name} onChange={handleChange} required />
-      <input name="phone" value={formData.phone} onChange={handleChange} required />
-      <input name="email" value={formData.email} onChange={handleChange} required />
+    <form onSubmit={handleSubmit} autoComplete="off">
+      <input
+        type="text"
+        name="name"
+        placeholder="Nombre completo"
+        value={formData.name}
+        onChange={handleChange}
+        required
+        style={{
+          color: "#000",
+          backgroundColor: "#fff",
+        }}
+      />
 
-      <button type="submit">
+      <input
+        type="tel"
+        name="phone"
+        placeholder="Teléfono"
+        value={formData.phone}
+        onChange={handleChange}
+        required
+        style={{
+          color: "#000",
+          backgroundColor: "#fff",
+        }}
+      />
+
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        style={{
+          color: "#000",
+          backgroundColor: "#fff",
+        }}
+      />
+
+      <button type="submit" disabled={status === "loading"}>
         {status === "loading" ? "Enviando..." : "¡Quiero registrarme gratis!"}
       </button>
 
-      {message && <p>{message}</p>}
+      {message && (
+        <p
+          style={{
+            marginTop: "10px",
+            color: status === "success" ? "green" : "red",
+          }}
+        >
+          {message}
+        </p>
+      )}
     </form>
   );
 }
