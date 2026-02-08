@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, CheckCircle2, AlertTriangle, Loader } from 'lucide-react';
 
-const SCRIPT_URL = 'PEGA_AQUI_TU_NUEVA_URL_DEL_DEPLOY';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSLODjz0EUYoxTgWaY-uTN2_dIlFZ_UAZ8Zo_SOiV1iY6qpOh7TkMvVKKMeAI5rYqJRQ/exec;
 
 export default function ModernLeadForm() {
   const [formStatus, setFormStatus] = useState('idle');
