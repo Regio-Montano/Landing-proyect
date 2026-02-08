@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbx3va8piEP6nu4QCBctEyClWx4mmaTcQL0kp1rwoKs1mtw8y4JlF_islBWm6c4gYhlnDQ/exec";
+  "https://script.google.com/macros/s/AKfycbwyCfeXjplz7f_A1-4yp44OZJ4NFkeMpmEKHv6Q_79ieLpUHfW5XGHZLGwmPs07fc1ZPA/exec";
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ export default function ModernLeadForm() {
 
     const params = new URLSearchParams(formData).toString();
 
-    // 🚀 ENVÍO REAL A GOOGLE SHEETS
+    // ✅ BEACON GET (sin CORS)
     const img = new Image();
     img.src = `${SCRIPT_URL}?${params}`;
 
@@ -44,35 +44,16 @@ export default function ModernLeadForm() {
     };
 
     img.onerror = () => {
-      // Google igual recibe el dato
-      setStatus("success");
-      setMessage("Registro enviado correctamente ✅");
+      setStatus("error");
+      setMessage("Error enviando el registro");
     };
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        placeholder="Nombre"
-        required
-      />
-      <input
-        name="phone"
-        value={formData.phone}
-        onChange={handleChange}
-        placeholder="Teléfono"
-        required
-      />
-      <input
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Email"
-        required
-      />
+      <input name="name" value={formData.name} onChange={handleChange} required />
+      <input name="phone" value={formData.phone} onChange={handleChange} required />
+      <input name="email" value={formData.email} onChange={handleChange} required />
 
       <button type="submit">
         {status === "loading" ? "Enviando..." : "¡Quiero registrarme gratis!"}
