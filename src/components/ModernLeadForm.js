@@ -12,59 +12,51 @@ export default function ModernLeadForm() {
     countryCode: "+52",
   });
 
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setStatus("loading");
     setMessage("");
 
-    try {
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+    const params = new URLSearchParams(formData).toString();
+
+    // 🔥 BEACON SIN CORS
+    const img = new Image();
+    img.src = `${SCRIPT_URL}?${params}`;
+
+    img.onload = () => {
+      setStatus("success");
+      setMessage("✅ Registro exitoso");
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        country: "MX",
+        countryCode: "+52",
       });
+    };
 
-      const result = await response.json();
-
-      if (result.success) {
-        setStatus("success");
-        setMessage("¡Registro enviado correctamente!");
-        setFormData({
-          name: "",
-          phone: "",
-          email: "",
-          country: "MX",
-          countryCode: "+52",
-        });
-      } else {
-        throw new Error(result.error || "Error desconocido");
-      }
-    } catch (err) {
-      console.error(err);
+    img.onerror = () => {
       setStatus("error");
-      setMessage("No se pudo enviar el formulario");
-    }
+      setMessage("❌ No se pudo enviar el formulario");
+    };
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
       <input
         name="name"
         placeholder="Nombre"
         value={formData.name}
         onChange={handleChange}
         required
-        className="w-full p-3 rounded"
+        className="w-full border p-2"
       />
 
       <input
@@ -73,37 +65,30 @@ export default function ModernLeadForm() {
         value={formData.phone}
         onChange={handleChange}
         required
-        className="w-full p-3 rounded"
+        className="w-full border p-2"
       />
 
       <input
-        type="email"
         name="email"
+        type="email"
         placeholder="Email"
         value={formData.email}
         onChange={handleChange}
         required
-        className="w-full p-3 rounded"
+        className="w-full border p-2"
       />
 
       <button
         type="submit"
-        disabled={status === "loading"}
-        className="w-full py-3 rounded bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold"
+        className="w-full bg-blue-600 text-white p-2 rounded"
       >
         {status === "loading" ? "Enviando..." : "¡Quiero registrarme gratis!"}
       </button>
 
-      {status === "success" && (
-        <div className="p-3 bg-green-100 text-green-700 rounded">
+      {message && (
+        <p className={status === "success" ? "text-green-600" : "text-red-600"}>
           {message}
-        </div>
-      )}
-
-      {status === "error" && (
-        <div className="p-3 bg-red-100 text-red-700 rounded">
-          {message}
-        </div>
+        </p>
       )}
     </form>
   );
