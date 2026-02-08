@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, CheckCircle2, AlertTriangle, Loader } from 'lucide-react';
 
-// ✅ URL DIRECTA A GOOGLE APPS SCRIPT (CORRECTA)
+// ✅ URL DIRECTA A GOOGLE APPS SCRIPT
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyK-9kmog8xWztqKfVec_RMSTIMw85S57av8OBJ7bobAZ3vwdI7jfkLCU3C--5-LUwhmQ/exec';
 
 export default function ModernLeadForm() {
@@ -12,7 +12,7 @@ export default function ModernLeadForm() {
     email: '',
     country: 'Mexico',
     countryCode: '+52',
-    hp: '' // honeypot
+    hp: ''
   });
 
   const [formStatus, setFormStatus] = useState('idle'); // idle | submitting | success | error
@@ -23,40 +23,40 @@ export default function ModernLeadForm() {
 
   // 🔹 Inicializar intl-tel-input
   useEffect(() => {
-    if (phoneInputRef.current && window.intlTelInput) {
-      itiRef.current = window.intlTelInput(phoneInputRef.current, {
-        initialCountry: 'mx',
-        preferredCountries: [
-          'mx','co','ar','cl','pe','ec','ve','uy','py','bo',
-          'pa','cr','sv','gt','hn','ni','do','cu','bz','pr'
-        ],
-        separateDialCode: true,
-      });
+    if (!phoneInputRef.current || !window.intlTelInput) return;
 
-      const handlePhoneUpdate = () => {
-        const iti = itiRef.current;
-        if (!iti) return;
+    itiRef.current = window.intlTelInput(phoneInputRef.current, {
+      initialCountry: 'mx',
+      preferredCountries: [
+        'mx','co','ar','cl','pe','ec','ve','uy','py','bo',
+        'pa','cr','sv','gt','hn','ni','do','cu','bz','pr'
+      ],
+      separateDialCode: true,
+    });
 
-        const fullNumber = iti.getNumber();
-        const countryData = iti.getSelectedCountryData();
+    const updatePhoneData = () => {
+      const iti = itiRef.current;
+      if (!iti) return;
 
-        setFormData(prev => ({
-          ...prev,
-          phone: fullNumber,
-          countryCode: `+${countryData.dialCode}`,
-          country: countryData.name,
-        }));
-      };
+      const fullNumber = iti.getNumber();
+      const countryData = iti.getSelectedCountryData();
 
-      phoneInputRef.current.addEventListener('change', handlePhoneUpdate);
-      phoneInputRef.current.addEventListener('countrychange', handlePhoneUpdate);
+      setFormData(prev => ({
+        ...prev,
+        phone: fullNumber || '',
+        countryCode: `+${countryData.dialCode || ''}`,
+        country: countryData.name || ''
+      }));
+    };
 
-      return () => {
-        phoneInputRef.current.removeEventListener('change', handlePhoneUpdate);
-        phoneInputRef.current.removeEventListener('countrychange', handlePhoneUpdate);
-        itiRef.current?.destroy();
-      };
-    }
+    phoneInputRef.current.addEventListener('input', updatePhoneData);
+    phoneInputRef.current.addEventListener('countrychange', updatePhoneData);
+
+    return () => {
+      phoneInputRef.current?.removeEventListener('input', updatePhoneData);
+      phoneInputRef.current?.removeEventListener('countrychange', updatePhoneData);
+      itiRef.current?.destroy();
+    };
   }, []);
 
   const handleChange = (e) => {
@@ -67,21 +67,21 @@ export default function ModernLeadForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🛑 Honeypot anti-bots
-    if (formData.hp?.trim()) return;
+    // 🛑 Honeypot
+    if (formData.hp.trim()) return;
+
+    const iti = itiRef.current;
+
+    if (!iti || !iti.isValidNumber()) {
+      setFormStatus('error');
+      setFormMessage('❌ Ingresa un teléfono válido.');
+      return;
+    }
 
     setFormStatus('submitting');
     setFormMessage('Enviando…');
 
     try {
-      const iti = itiRef.current;
-
-      if (!iti || !iti.isValidNumber()) {
-        setFormStatus('error');
-        setFormMessage('❌ Ingresa un teléfono válido.');
-        return;
-      }
-
       const payload = {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
@@ -92,13 +92,10 @@ export default function ModernLeadForm() {
 
       const res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      // ✅ GOOGLE SCRIPT RESPONDE TEXTO → PARSE SEGURO
       const text = await res.text();
       const data = JSON.parse(text);
 
@@ -163,6 +160,7 @@ export default function ModernLeadForm() {
           />
         </div>
 
+        {/* 📞 TELÉFONO — NO CONTROLADO */}
         <input
           type="tel"
           ref={phoneInputRef}
@@ -187,17 +185,24 @@ export default function ModernLeadForm() {
 
         <button
           type="submit"
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold flex justify-center"
           disabled={formStatus === 'submitting'}
         >
-          {formStatus === 'submitting' ? <Loader className="animate-spin" /> : '¡Quiero registrarme gratis!'}
+          {formStatus === 'submitting'
+            ? <Loader className="animate-spin" />
+            : '¡Quiero registrarme gratis!'}
         </button>
 
         {formMessage && (
-          <div className={`p-3 rounded-lg text-sm ${
-            formStatus === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${
+            formStatus === 'success'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
           }`}>
-            {formStatus === 'success' ? <CheckCircle2 /> : <AlertTriangle />} {formMessage}
+            {formStatus === 'success'
+              ? <CheckCircle2 size={18} />
+              : <AlertTriangle size={18} />}
+            {formMessage}
           </div>
         )}
       </form>
