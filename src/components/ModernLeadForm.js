@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxjrvRdC-a0X5yPgmw7RnjTrPPHe-vPty8BggqzJ2CT68-YITmDSv6tLh45_BNDWV0tXA/exec"; // 👈 ESTE ES CRÍTICO
+  "https://script.google.com/macros/s/AKfycbzYk81ugcdYTgV1oAtWCEYinOJgkI-7nGep3TLtuxS5kls0sfKi-vxpVXcNCzKQULRv/exec"; // 👈 ESTE ES CRÍTICO
 
 export default function ModernLeadForm() {
   const [formData, setFormData] = useState({
