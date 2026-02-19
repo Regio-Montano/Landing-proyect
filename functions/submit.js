@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
 
     // ===== ENVIAR A GOOGLE SHEETS =====
 
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzU9b9LKza2bHSfV7_5X6K5wwSrj0StgOG9q19A9UrJGdyUscmRu7t1zP3nT3WivJDtHA/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzimWTRUjkA9OxvFoP2y9Enu2491NebIHStosSRKAQvH7wlfzETFOrI61pI1V93jQoATA/exec";
 
     const response = await fetch(scriptURL, {
       method: "POST",
