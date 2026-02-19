@@ -1,28 +1,56 @@
-export async function onRequestPost(context) {
+export async function onRequest(context) {
+
+  // ✅ manejar preflight CORS
+  if (context.request.method === "OPTIONS") {
+    return new Response(null, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    });
+  }
+
+  // ✅ solo permitir POST
+  if (context.request.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+
   try {
-    const body = await context.request.json();
+    const { request, env } = context;
+    const data = await request.json();
 
-    console.log("Lead recibido:", body);
+    // ===== ENVÍO A GOOGLE SHEETS =====
+    const scriptURL = "TU_URL_DE_GOOGLE_SCRIPT_AQUI";
 
-    return new Response(JSON.stringify({
-      success: true
-    }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      }
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
 
-  } catch (error) {
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message
-    }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json"
+    if (!res.ok) throw new Error("Error enviando a sheets");
+
+    return new Response(
+      JSON.stringify({ success: true }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
       }
-    });
+    );
+
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ success: false, error: err.message }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    );
   }
 }
