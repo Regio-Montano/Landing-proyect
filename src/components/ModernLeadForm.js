@@ -25,7 +25,8 @@ export default function ModernLeadForm() {
     setMessage("");
 
     try {
-      const res = await fetch("https://api-shield.sy447014.workers.dev", {
+
+      const res = await fetch("/api/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -33,7 +34,6 @@ export default function ModernLeadForm() {
         body: JSON.stringify(formData)
       });
 
-      // 🔥 CAMBIO IMPORTANTE → usar JSON (no text)
       const data = await res.json();
 
       if (!res.ok || !data.success) {
@@ -41,7 +41,7 @@ export default function ModernLeadForm() {
       }
 
       setStatus("success");
-      setMessage("Registro enviado correctamente ✓");
+      setMessage("Registro enviado correctamente ✔");
 
       setFormData({
         name: "",
@@ -50,9 +50,9 @@ export default function ModernLeadForm() {
       });
 
     } catch (err) {
-      console.error(err);
       setStatus("error");
       setMessage("Error al enviar. Intenta otra vez.");
+      console.error(err);
     }
   };
 
