@@ -21,7 +21,7 @@ export async function onRequest(context) {
     const data = await request.json();
 
     // ===== ENVÍO A GOOGLE SHEETS =====
-    const scriptURL = "TU_URL_DE_GOOGLE_SCRIPT_AQUI";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxc7ApM1aDg8SMy6sYgO6n3bgqYK1R6_6cmORwN3q2qNcpRCqciXAFcR1mw--Q2doqLfg/exec";
 
     const res = await fetch(scriptURL, {
       method: "POST",
