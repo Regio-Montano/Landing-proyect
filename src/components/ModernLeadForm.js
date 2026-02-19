@@ -25,22 +25,23 @@ export default function ModernLeadForm() {
     setMessage("");
 
     try {
-
-      const res = await fetch("https://api-shield.sy447014.workers.dev", {
+      const res = await fetch("/api/submit", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer UltraShield_2026_SECURE_KEY_9472"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(formData)
       });
 
-      const text = await res.text();
+      // 🔥 CAMBIO IMPORTANTE → usar JSON (no text)
+      const data = await res.json();
 
-      if (!res.ok) throw new Error(text);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Error enviando lead");
+      }
 
       setStatus("success");
-      setMessage("Registro enviado correctamente ✔");
+      setMessage("Registro enviado correctamente ✓");
 
       setFormData({
         name: "",
@@ -49,9 +50,9 @@ export default function ModernLeadForm() {
       });
 
     } catch (err) {
+      console.error(err);
       setStatus("error");
       setMessage("Error al enviar. Intenta otra vez.");
-      console.error(err);
     }
   };
 
