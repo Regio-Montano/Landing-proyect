@@ -26,7 +26,7 @@ export default function ModernLeadForm() {
 
     try {
 
-      const res = await fetch("/api/submit", {
+      const res = await fetch("/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
