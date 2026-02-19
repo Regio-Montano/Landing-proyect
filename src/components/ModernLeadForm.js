@@ -25,7 +25,7 @@ export default function ModernLeadForm() {
     setMessage("");
 
     try {
-      const res = await fetch("/api/submit", {
+      const res = await fetch("https://api-shield.sy447014.workers.dev", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
