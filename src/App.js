@@ -45,7 +45,7 @@ const App = () => {
     }
   };
 
-  const t = text[lang];
+  const t = text[lang] || text.es;
 
   return (
     <motion.div
@@ -67,44 +67,47 @@ const App = () => {
 
         <div className="relative z-10 text-white text-center max-w-4xl mx-auto">
 
-          <motion.h1
-            className="text-5xl md:text-6xl font-extrabold mb-4"
-          >
+          <motion.h1 className="text-5xl md:text-6xl font-extrabold mb-4">
             {t.title}
           </motion.h1>
 
-          <motion.p
-            className="text-xl md:text-2xl mb-12"
-          >
+          <motion.p className="text-xl md:text-2xl mb-12">
             {t.subtitle}
           </motion.p>
 
-          <ModernLeadForm />
+          {/* FORM con idioma */}
+          <ModernLeadForm lang={lang} />
         </div>
       </div>
 
-      <BenefitsSection />
+      {/* Benefits con idioma */}
+      <BenefitsSection lang={lang} />
 
       {/* Central */}
       <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl font-bold mb-6">{t.reserve}</h2>
-          <ModernLeadForm />
+
+          <ModernLeadForm lang={lang} />
         </div>
       </section>
 
-      <TestimonialsSection />
+      {/* Testimonials con idioma */}
+      <TestimonialsSection lang={lang} />
 
       {/* Final */}
       <section className="py-16 bg-gradient-to-br from-green-50 to-emerald-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="text-4xl font-bold mb-6">{t.start}</h2>
           <p className="text-xl mb-12">{t.online}</p>
-          <ModernLeadForm />
+
+          <ModernLeadForm lang={lang} />
         </div>
       </section>
 
-      <Footer />
+      {/* Footer con idioma */}
+      <Footer lang={lang} />
+
     </motion.div>
   );
 };
