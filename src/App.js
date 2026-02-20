@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import ModernLeadForm from './components/ModernLeadForm';
-import BenefitsSection from './components/BenefitsSection';
-import TestimonialsSection from './components/TestimonialsSection';
-import Footer from './components/Footer';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+
+import ModernLeadForm from "./components/ModernLeadForm";
+import BenefitsSection from "./components/BenefitsSection";
+import TestimonialsSection from "./components/TestimonialsSection";
+import Footer from "./components/Footer";
 
 const App = () => {
 
@@ -11,18 +12,23 @@ const App = () => {
 
   // Detectar país automáticamente
   useEffect(() => {
-    fetch("/api/geo")
-      .then(res => res.json())
-      .then(data => {
+    const detectCountry = async () => {
+      try {
+        const res = await fetch("/api/geo");
+        const data = await res.json();
+
         console.log("País detectado:", data.country);
 
-        if (data.country === "BR") {
-          setLang("pt");
-        } else {
-          setLang("es");
-        }
-      })
-      .catch(() => setLang("es"));
+        // Brasil → portugués, resto → español
+        setLang(data.country === "BR" ? "pt" : "es");
+
+      } catch (error) {
+        console.log("Error detectando país → default ES");
+        setLang("es");
+      }
+    };
+
+    detectCountry();
   }, []);
 
   // Textos por idioma
@@ -35,6 +41,7 @@ const App = () => {
       start: "Empieza tu camino en el trading ahora mismo.",
       online: "El curso es 100% en línea y el registro es gratis."
     },
+
     pt: {
       title: "Domine o Trading em 30 Dias 🚀",
       subtitle:
@@ -45,7 +52,7 @@ const App = () => {
     }
   };
 
-  const t = text[lang] || text.es;
+  const t = text[lang] ?? text.es;
 
   return (
     <motion.div
@@ -55,7 +62,7 @@ const App = () => {
       transition={{ duration: 0.8 }}
     >
 
-      {/* Hero */}
+      {/* HERO */}
       <div
         className="relative min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
         style={{
@@ -77,35 +84,47 @@ const App = () => {
 
           {/* FORM con idioma */}
           <ModernLeadForm lang={lang} />
+
         </div>
       </div>
 
-      {/* Benefits con idioma */}
+      {/* BENEFITS */}
       <BenefitsSection lang={lang} />
 
-      {/* Central */}
+      {/* SECCIÓN CENTRAL */}
       <section className="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h2 className="text-4xl font-bold mb-6">{t.reserve}</h2>
+
+          <h2 className="text-4xl font-bold mb-6">
+            {t.reserve}
+          </h2>
 
           <ModernLeadForm lang={lang} />
+
         </div>
       </section>
 
-      {/* Testimonials con idioma */}
+      {/* TESTIMONIOS */}
       <TestimonialsSection lang={lang} />
 
-      {/* Final */}
+      {/* SECCIÓN FINAL */}
       <section className="py-16 bg-gradient-to-br from-green-50 to-emerald-50">
         <div className="container mx-auto px-4 max-w-4xl text-center">
-          <h2 className="text-4xl font-bold mb-6">{t.start}</h2>
-          <p className="text-xl mb-12">{t.online}</p>
+
+          <h2 className="text-4xl font-bold mb-6">
+            {t.start}
+          </h2>
+
+          <p className="text-xl mb-12">
+            {t.online}
+          </p>
 
           <ModernLeadForm lang={lang} />
+
         </div>
       </section>
 
-      {/* Footer con idioma */}
+      {/* FOOTER */}
       <Footer lang={lang} />
 
     </motion.div>
