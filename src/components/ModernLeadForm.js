@@ -1,6 +1,30 @@
 import { useState } from "react";
 
-export default function ModernLeadForm() {
+export default function ModernLeadForm({ lang = "es" }) {
+
+  // Textos por idioma
+  const text = {
+    es: {
+      name: "Tu nombre",
+      phone: "Tu teléfono",
+      email: "Tu email",
+      button: "Quiero registrarme gratis",
+      sending: "Enviando...",
+      success: "Registro enviado correctamente ✔",
+      error: "Error al enviar. Intenta otra vez."
+    },
+    pt: {
+      name: "Seu nome",
+      phone: "Seu telefone",
+      email: "Seu email",
+      button: "Quero me registrar grátis",
+      sending: "Enviando...",
+      success: "Registro enviado com sucesso ✔",
+      error: "Erro ao enviar. Tente novamente."
+    }
+  };
+
+  const t = text[lang] || text.es;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,7 +49,6 @@ export default function ModernLeadForm() {
     setMessage("");
 
     try {
-
       const res = await fetch("/submit", {
         method: "POST",
         headers: {
@@ -41,7 +64,7 @@ export default function ModernLeadForm() {
       }
 
       setStatus("success");
-      setMessage("Registro enviado correctamente ✔");
+      setMessage(t.success);
 
       setFormData({
         name: "",
@@ -51,7 +74,7 @@ export default function ModernLeadForm() {
 
     } catch (err) {
       setStatus("error");
-      setMessage("Error al enviar. Intenta otra vez.");
+      setMessage(t.error);
       console.error(err);
     }
   };
@@ -75,7 +98,7 @@ export default function ModernLeadForm() {
 
       <input
         name="name"
-        placeholder="Tu nombre"
+        placeholder={t.name}
         value={formData.name}
         onChange={handleChange}
         required
@@ -84,7 +107,7 @@ export default function ModernLeadForm() {
 
       <input
         name="phone"
-        placeholder="Tu teléfono"
+        placeholder={t.phone}
         value={formData.phone}
         onChange={handleChange}
         required
@@ -93,7 +116,7 @@ export default function ModernLeadForm() {
 
       <input
         name="email"
-        placeholder="Tu email"
+        placeholder={t.email}
         type="email"
         value={formData.email}
         onChange={handleChange}
@@ -115,16 +138,18 @@ export default function ModernLeadForm() {
           fontSize: "15px"
         }}
       >
-        {status === "loading" ? "Enviando..." : "Quiero registrarme gratis"}
+        {status === "loading" ? t.sending : t.button}
       </button>
 
       {message && (
-        <p style={{
-          textAlign: "center",
-          fontSize: "14px",
-          color: status === "success" ? "green" : "red",
-          margin: 0
-        }}>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "14px",
+            color: status === "success" ? "green" : "red",
+            margin: 0
+          }}
+        >
           {message}
         </p>
       )}
