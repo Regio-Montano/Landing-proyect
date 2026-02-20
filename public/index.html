@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TradingPro</title>
 
-    <!-- Tailwind (solo para desarrollo) -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- intl-tel-input CSS -->
@@ -20,11 +20,35 @@
       defer
     ></script>
 
-    <!-- utils.js (NECESARIO para validación correcta) -->
+    <!-- utils.js -->
     <script
       src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
       defer
     ></script>
+
+    <!-- ⭐ DETECCIÓN DE PAÍS AUTOMÁTICA -->
+    <script>
+      async function detectUserCountry() {
+        try {
+          const res = await fetch("/api/geo");
+          const data = await res.json();
+
+          let lang = "es";
+
+          if (data.country === "BR") lang = "pt";
+          if (data.country === "US") lang = "en";
+
+          // Guardamos idioma global para React
+          window.APP_LANG = lang;
+
+          console.log("Idioma detectado:", lang);
+        } catch (err) {
+          window.APP_LANG = "es";
+        }
+      }
+
+      detectUserCountry();
+    </script>
   </head>
 
   <body>
