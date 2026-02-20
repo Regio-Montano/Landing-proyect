@@ -5,7 +5,41 @@ import BenefitsSection from './components/BenefitsSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import Footer from './components/Footer';
 
+/* ===== DETECTOR DE IDIOMA ===== */
+const lang = window.APP_LANG || "es";
+
+const texts = {
+  es: {
+    heroTitle: "Domina el Trading en 30 Días 🚀",
+    heroSubtitle:
+      "Aprende las estrategias exactas que usan los traders profesionales para generar ingresos en los mercados financieros.",
+    reserve: "Reserva tu lugar hoy. Cupos limitados ⏳",
+    start: "Empieza tu camino en el trading ahora mismo.",
+    course: "El curso es 100% en línea y el registro es gratis."
+  },
+
+  pt: {
+    heroTitle: "Domine o Trading em 30 Dias 🚀",
+    heroSubtitle:
+      "Aprenda as estratégias usadas por traders profissionais para gerar renda nos mercados financeiros.",
+    reserve: "Reserve sua vaga hoje. Vagas limitadas ⏳",
+    start: "Comece sua jornada no trading agora mesmo.",
+    course: "O curso é 100% online e o registro é gratuito."
+  },
+
+  en: {
+    heroTitle: "Master Trading in 30 Days 🚀",
+    heroSubtitle:
+      "Learn the exact strategies professional traders use to generate income in financial markets.",
+    reserve: "Reserve your spot today. Limited seats ⏳",
+    start: "Start your trading journey now.",
+    course: "The course is 100% online and registration is free."
+  }
+};
+
 const App = () => {
+  const t = texts[lang] || texts.es;
+
   return (
     <motion.div 
       className="min-h-screen bg-white"
@@ -29,7 +63,7 @@ const App = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            Domina el Trading en 30 Días <span role="img" aria-label="rocket">🚀</span>
+            {t.heroTitle}
           </motion.h1>
 
           <motion.p 
@@ -38,10 +72,9 @@ const App = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            Aprende las estrategias exactas que usan los traders profesionales para generar ingresos en los mercados financieros.
+            {t.heroSubtitle}
           </motion.p>
 
-          {/* ✅ FORMULARIO CORRECTO */}
           <ModernLeadForm />
         </div>
       </div>
@@ -59,10 +92,9 @@ const App = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            Reserva tu lugar hoy. Cupos limitados <span role="img" aria-label="hourglass">⏳</span>
+            {t.reserve}
           </motion.h2>
 
-          {/* ✅ MISMO FORMULARIO */}
           <ModernLeadForm />
         </div>
       </section>
@@ -80,7 +112,7 @@ const App = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            Empieza tu camino en el trading ahora mismo.
+            {t.start}
           </motion.h2>
 
           <motion.p
@@ -90,15 +122,13 @@ const App = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            El curso es 100% en línea y el registro es gratis.
+            {t.course}
           </motion.p>
 
-          {/* ✅ MISMO FORMULARIO */}
           <ModernLeadForm />
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </motion.div>
   );
