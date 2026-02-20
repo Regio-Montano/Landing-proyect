@@ -10,7 +10,8 @@ export default function ModernLeadForm({ lang = "es" }) {
       button: "Quiero registrarme gratis",
       sending: "Enviando...",
       success: "Registro enviado correctamente ✔",
-      error: "Error al enviar. Intenta otra vez."
+      error: "Error al enviar. Intenta otra vez.",
+      country: "Mexico"
     },
     pt: {
       name: "Seu nome",
@@ -19,11 +20,12 @@ export default function ModernLeadForm({ lang = "es" }) {
       button: "Quero me registrar grátis",
       sending: "Enviando...",
       success: "Registro enviado com sucesso ✔",
-      error: "Erro ao enviar. Tente novamente."
+      error: "Erro ao enviar. Tente novamente.",
+      country: "Brazil"
     }
   };
 
-  const t = text[lang];
+  const t = text[lang] || text.es;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -41,32 +43,44 @@ export default function ModernLeadForm({ lang = "es" }) {
     }));
   };
 
+  const getLada = (phone) => {
+    if (!phone) return "";
+    return phone.substring(0, 3);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
 
     try {
+
+      const payload = {
+        ...formData,
+        campaign: "TRADING",
+        country: t.country, // ← viene del idioma detectado por IP
+        lada: getLada(formData.phone),
+        lang: lang
+      };
+
       const res = await fetch("/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
-
       if (!res.ok || !data.success) throw new Error();
 
-      // ✅ META PIXEL LEAD EVENT (AQUÍ ESTÁ LA MAGIA)
+      // META PIXEL
       if (window.fbq) {
         window.fbq('track', 'Lead', {
           content_name: "Trading Lead",
-          status: "submitted"
+          country: payload.country
         });
       }
 
       setStatus("success");
       setMessage(t.success);
-
       setFormData({ name: "", phone: "", email: "" });
 
     } catch {
@@ -111,7 +125,11 @@ export default function ModernLeadForm({ lang = "es" }) {
       </button>
 
       {message && (
-        <p style={{ textAlign:"center", fontSize:"14px", color: status==="success"?"green":"red" }}>
+        <p style={{
+          textAlign: "center",
+          fontSize: "14px",
+          color: status === "success" ? "green" : "red"
+        }}>
           {message}
         </p>
       )}
