@@ -1,6 +1,6 @@
 export async function onRequest(context) {
 
-  const country = context.request.cf?.country || "MX";
+  const country = "BR";
 
   return new Response(
     JSON.stringify({ country }),
