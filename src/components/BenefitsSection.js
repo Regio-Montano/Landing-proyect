@@ -1,34 +1,53 @@
-export default function BenefitsSection({ lang = "es" }) {
+import React from "react";
+
+const BenefitsSection = ({ lang = "es" }) => {
 
   const text = {
     es: {
       title: "¿Qué Obtendrás con TradingPro?",
-      b1: "Estrategias probadas que funcionan",
-      b2: "Acceso a material exclusivo en línea",
-      b3: "Comunidad de traders en LATAM",
-      b4: "Mentorías personalizadas"
+      benefits: [
+        "Estrategias probadas que funcionan",
+        "Acceso a material exclusivo en línea",
+        "Comunidad de traders en LATAM",
+        "Mentorías personalizadas"
+      ]
     },
+
     pt: {
       title: "O que você terá com TradingPro?",
-      b1: "Estratégias comprovadas que funcionam",
-      b2: "Acesso a material exclusivo online",
-      b3: "Comunidade de traders na América Latina",
-      b4: "Mentorias personalizadas"
+      benefits: [
+        "Estratégias comprovadas que funcionam",
+        "Acesso a material exclusivo online",
+        "Comunidade de traders na América Latina",
+        "Mentorias personalizadas"
+      ]
     }
   };
 
   const t = text[lang];
 
   return (
-    <section className="py-16 text-center">
-      <h2 className="text-3xl font-bold mb-10">{t.title}</h2>
+    <section className="py-16 bg-gray-50">
+      <div className="max-w-4xl mx-auto text-center">
 
-      <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto">
-        <div>{t.b1}</div>
-        <div>{t.b2}</div>
-        <div>{t.b3}</div>
-        <div>{t.b4}</div>
+        <h2 className="text-4xl font-bold mb-10">
+          {t.title}
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {t.benefits.map((item, i) => (
+            <div
+              key={i}
+              className="p-6 bg-white rounded-lg shadow border"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+
       </div>
     </section>
   );
-}
+};
+
+export default BenefitsSection;
