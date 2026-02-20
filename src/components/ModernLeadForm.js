@@ -46,7 +46,7 @@ export default function ModernLeadForm({ lang = "es" }) {
     setStatus("loading");
 
     try {
-      const res = await fetch("/api/submit", {
+      const res = await fetch("/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
