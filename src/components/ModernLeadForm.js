@@ -56,6 +56,14 @@ export default function ModernLeadForm({ lang = "es" }) {
 
       if (!res.ok || !data.success) throw new Error();
 
+      // ✅ META PIXEL LEAD EVENT (AQUÍ ESTÁ LA MAGIA)
+      if (window.fbq) {
+        window.fbq('track', 'Lead', {
+          content_name: "Trading Lead",
+          status: "submitted"
+        });
+      }
+
       setStatus("success");
       setMessage(t.success);
 
@@ -70,9 +78,33 @@ export default function ModernLeadForm({ lang = "es" }) {
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
 
-      <input name="name" placeholder={t.name} value={formData.name} onChange={handleChange} required style={inputStyle} />
-      <input name="phone" placeholder={t.phone} value={formData.phone} onChange={handleChange} required style={inputStyle} />
-      <input name="email" placeholder={t.email} type="email" value={formData.email} onChange={handleChange} required style={inputStyle} />
+      <input
+        name="name"
+        placeholder={t.name}
+        value={formData.name}
+        onChange={handleChange}
+        required
+        style={inputStyle}
+      />
+
+      <input
+        name="phone"
+        placeholder={t.phone}
+        value={formData.phone}
+        onChange={handleChange}
+        required
+        style={inputStyle}
+      />
+
+      <input
+        name="email"
+        placeholder={t.email}
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+        style={inputStyle}
+      />
 
       <button type="submit" disabled={status === "loading"} style={buttonStyle}>
         {status === "loading" ? t.sending : t.button}
