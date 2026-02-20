@@ -1,71 +1,53 @@
-export async function onRequest(context) {
-
-  // ===== CORS =====
-  if (context.request.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    });
-  }
-
-  if (context.request.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
+export async function onRequestPost(context) {
   try {
-    const { request } = context;
-    const data = await request.json();
+    const body = await context.request.json();
 
-    // ===== DETECTAR PAÍS POR IP (Cloudflare header) =====
-    const country = request.headers.get("CF-IPCountry") || "MX";
+    const PIXEL_ID = "777552184901375";
+    const ACCESS_TOKEN = "EAANAFTdfWwMBQ321pF0bswYFajsgcxCPniVgC4To7aqswt4wbSGs3eEgb6N84tOZBUyabl8eb4TRJ487T8A7KxMbr6qBMx7XL64YKZAqzGHB4clBW66L8j62uKCFbPW75wXVqzAfWvK9O9UuZAOPwikRZAK5thSZCEJZAtUuHGH673Fj11bFZBWBMDzcvqMshf02wZDZD";
 
-    // ===== ASIGNAR ASESOR AUTOMÁTICO =====
-    // puedes cambiar lógica después
-    const asesores = ["LATAM A", "LATAM B", "LATAM C"];
-    const asesor = asesores[Math.floor(Math.random() * asesores.length)];
-
-    // ===== PAYLOAD EXACTO PARA SHEETS =====
-    const payload = {
-      name: data.name || "",
-      phone: data.phone || "",
-      email: data.email || "",
-      campaign: "TRADING",
-      country: country,
-      countryCode: "", // LADA (si luego quieres extraerla del teléfono)
-      asesor: asesor
+    const userData = {
+      em: body.email ? await sha256(body.email) : undefined,
+      ph: body.phone ? await sha256(body.phone) : undefined,
+      fn: body.name ? await sha256(body.name) : undefined
     };
 
-    // ===== URL GOOGLE SCRIPT =====
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwajXERqDZwOlQ8ozLuw--PNJdBvbxGtKL_TwMu6h_MrIwWmc63-UUIuXL6hKkhRuTEKw/exec";
-
-    const res = await fetch(scriptURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) throw new Error("Error enviando a sheets");
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      }
-    });
-
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ success: false, error: err.message }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*"
+    const payload = {
+      data: [
+        {
+          event_name: "Lead",
+          event_time: Math.floor(Date.now() / 1000),
+          action_source: "website",
+          event_source_url: context.request.headers.get("referer"),
+          user_data: userData
         }
+      ]
+    };
+
+    await fetch(
+      `https://graph.facebook.com/v18.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       }
     );
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false }), {
+      status: 500
+    });
   }
+}
+
+async function sha256(value) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(value.trim().toLowerCase());
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
 }
