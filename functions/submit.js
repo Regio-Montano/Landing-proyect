@@ -6,7 +6,22 @@ export async function onRequestPost(context) {
 
     const ACCESS_TOKEN = "EAANAFTdfWwMBQ321pF0bswYFajsgcxCPniVgC4To7aqswt4wbSGs3eEgb6N84tOZBUyabl8eb4TRJ487T8A7KxMbr6qBMx7XL64YKZAqzGHB4clBW66L8j62uKCFbPW75wXVqzAfWvK9O9UuZAOPwikRZAK5thSZCEJZAtUuHGH673Fj11bFZBWBMDzcvqMshf02wZDZD";
 
-    // Hash datos usuario (requerido por Meta)
+    // ⚠️ PON AQUÍ TU URL DE GOOGLE SCRIPT
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwajXERqDZwOlQ8ozLuw--PNJdBvbxGtKL_TwMu6h_MrIwWmc63-UUIuXL6hKkhRuTEKw/exec";
+
+    // ========================
+    // 1️⃣ GUARDAR EN SHEETS
+    // ========================
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    // ========================
+    // 2️⃣ META CONVERSION API
+    // ========================
+
     const userData = {
       em: body.email ? [await sha256(body.email)] : undefined,
       ph: body.phone ? [await sha256(body.phone)] : undefined,
@@ -29,9 +44,7 @@ export async function onRequestPost(context) {
       `https://graph.facebook.com/v18.0/${PIXEL_ID}/events?access_token=${ACCESS_TOKEN}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       }
     );
