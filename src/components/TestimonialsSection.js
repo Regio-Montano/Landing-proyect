@@ -2,24 +2,58 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
 
-const TestimonialsSection = () => {
-  const testimonials = [
-    {
-      quote: 'Gracias a este curso entendí cómo operar con confianza. ¡Mi mejor inversión!',
-      author: 'Juan Pérez',
-      role: 'Estudiante TradingPro'
+const TestimonialsSection = ({ lang = "es" }) => {
+
+  // TEXTOS POR IDIOMA
+  const text = {
+    es: {
+      title1: "Nuestros Estudiantes",
+      title2: "Hablan por Nosotros",
+      trust: "Confían en nosotros y operan con:",
+      testimonials: [
+        {
+          quote: "Gracias a este curso entendí cómo operar con confianza. ¡Mi mejor inversión!",
+          author: "Juan Pérez",
+          role: "Estudiante TradingPro"
+        },
+        {
+          quote: "Las mentorías personalizadas hicieron toda la diferencia. ¡Resultados desde la primera semana!",
+          author: "Ana García",
+          role: "Trader Independiente"
+        },
+        {
+          quote: "La comunidad es increíble, siempre hay apoyo y nuevas ideas. ¡Totalmente recomendado!",
+          author: "Carlos Ruiz",
+          role: "Inversor"
+        }
+      ]
     },
-    {
-      quote: 'Las mentorías personalizadas hicieron toda la diferencia. ¡Resultados desde la primera semana!',
-      author: 'Ana García',
-      role: 'Trader Independiente'
-    },
-    {
-      quote: 'La comunidad es increíble, siempre hay apoyo y nuevas ideas. ¡Totalmente recomendado!',
-      author: 'Carlos Ruiz',
-      role: 'Inversor'
+
+    pt: {
+      title1: "Nossos Alunos",
+      title2: "Falam por Nós",
+      trust: "Confiam em nós e operam com:",
+      testimonials: [
+        {
+          quote: "Graças a este curso entendi como operar com confiança. Meu melhor investimento!",
+          author: "Juan Pérez",
+          role: "Aluno TradingPro"
+        },
+        {
+          quote: "As mentorias personalizadas fizeram toda a diferença. Resultados desde a primeira semana!",
+          author: "Ana García",
+          role: "Trader Independente"
+        },
+        {
+          quote: "A comunidade é incrível, sempre há apoio e novas ideias. Totalmente recomendado!",
+          author: "Carlos Ruiz",
+          role: "Investidor"
+        }
+      ]
     }
-  ];
+  };
+
+  const t = text[lang];
 
   const logos = [
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Binance_logo.svg/2560px-Binance_logo.svg.png',
@@ -30,6 +64,8 @@ const TestimonialsSection = () => {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4 max-w-4xl">
+
+        {/* TITULO */}
         <motion.h2
           className="text-4xl font-bold text-gray-900 text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
@@ -37,14 +73,15 @@ const TestimonialsSection = () => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          Nuestros Estudiantes{' '}
+          {t.title1}{" "}
           <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Hablan por Nosotros
+            {t.title2}
           </span>
         </motion.h2>
 
+        {/* TESTIMONIOS */}
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {testimonials.map((testimonial, index) => (
+          {t.testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
               className="bg-white p-6 rounded-xl shadow-lg border border-gray-200"
@@ -54,18 +91,29 @@ const TestimonialsSection = () => {
               viewport={{ once: true }}
             >
               <Quote className="w-8 h-8 text-blue-500 mb-4" />
-              <p className="text-gray-700 italic mb-4">"{testimonial.quote}"</p>
+
+              <p className="text-gray-700 italic mb-4">
+                "{testimonial.quote}"
+              </p>
+
               <div className="flex items-center gap-2">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                 ))}
               </div>
-              <p className="font-semibold text-gray-900 mt-2">{testimonial.author}</p>
-              <p className="text-sm text-gray-600">{testimonial.role}</p>
+
+              <p className="font-semibold text-gray-900 mt-2">
+                {testimonial.author}
+              </p>
+
+              <p className="text-sm text-gray-600">
+                {testimonial.role}
+              </p>
             </motion.div>
           ))}
         </div>
 
+        {/* LOGOS */}
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
@@ -74,8 +122,9 @@ const TestimonialsSection = () => {
           viewport={{ once: true }}
         >
           <h3 className="text-2xl font-bold text-gray-800 mb-6">
-            Confían en nosotros y operan con:
+            {t.trust}
           </h3>
+
           <div className="flex flex-wrap justify-center items-center gap-8">
             {logos.map((logo, index) => (
               <motion.img
@@ -91,6 +140,7 @@ const TestimonialsSection = () => {
             ))}
           </div>
         </motion.div>
+
       </div>
     </section>
   );
