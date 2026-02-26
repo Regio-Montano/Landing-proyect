@@ -2,40 +2,39 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
 
-    // ======================
+    // ================================
     // CONFIG
-    // ======================
+    // ================================
     const PIXEL_ID = "777552184901375";
-    const ACCESS_TOKEN = "EAANAFTdfWwMBQ321pF0bswYFajsgcxCPniVgC4To7aqswt4wbSGs3eEgb6N84tOZBUyabl8eb4TRJ487T8A7KxMbr6qBMx7XL64YKZAqzGHB4clBW66L8j62uKCFbPW75wXVqzAfWvK9O9UuZAOPwikRZAK5thSZCEJZAtUuHGH673Fj11bFZBWBMDzcvqMshf02wZDZD";
-    const TEST_EVENT_CODE = "TEST16901"; // usa el que aparece en Meta
+    const ACCESS_TOKEN = "EAANAFTdfWwMBQ321pF0bswYFajsgcxCPniVgC4To7aqswt4wbSGs3eEgb6N84tOZBUyabl8eb4TRJ487T8A7KxMbr6qBMx7XL64YKZAqzGHB4clBW66L8j62uKCFbPW75wXVqzAfWvK9O9UuZAOPwikRZAK5thSZCEJZAtUuHGH673Fj11bFZBWBMDzcvqMshf02wZDZD"; // ← pon tu token real
+    const TEST_EVENT_CODE = "TEST16901";
 
     const GOOGLE_SCRIPT_URL =
       "https://script.google.com/macros/s/AKfycbwajXERqDZwOlQ8ozLuw--PNJdBvbxGtKL_TwMu6h_MrIwWmc63-UUIuXL6hKkhRuTEKw/exec";
 
-    // ======================
-    // VALIDAR EVENT ID (CLAVE)
-    // ======================
+    // ================================
+    // EVENT ID REAL (DEDUPE CORRECTO)
+    // ================================
     const eventId = body.eventId || crypto.randomUUID();
 
-    // ======================
-    // GUARDAR EN SHEETS
-    // ======================
+    // ================================
+    // 1️⃣ GUARDAR EN SHEETS
+    // ================================
     await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
-    // ======================
-    // META CONVERSION API
-    // ======================
+    // ================================
+    // 2️⃣ META CONVERSION API
+    // ================================
     const ip =
       context.request.headers.get("CF-Connecting-IP") ||
       context.request.headers.get("x-forwarded-for") ||
       "";
 
-    const userAgent =
-      context.request.headers.get("user-agent") || "";
+    const userAgent = context.request.headers.get("user-agent") || "";
 
     const userData = {
       em: body.email ? [await sha256(body.email)] : undefined,
@@ -53,7 +52,7 @@ export async function onRequestPost(context) {
           action_source: "website",
           event_source_url:
             context.request.headers.get("referer") || "",
-          event_id: eventId, // ⭐ MISMO ID DEL FRONTEND
+          event_id: eventId,
           user_data: userData
         }
       ],
@@ -86,10 +85,14 @@ export async function onRequestPost(context) {
   }
 }
 
+// ================================
+// HASH META REQUIREMENT
+// ================================
 async function sha256(value) {
   const encoder = new TextEncoder();
   const data = encoder.encode(value.trim().toLowerCase());
   const hash = await crypto.subtle.digest("SHA-256", data);
+
   return Array.from(new Uint8Array(hash))
     .map(b => b.toString(16).padStart(2, "0"))
     .join("");
