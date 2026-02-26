@@ -2,31 +2,33 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
 
-    // ==============================
+    // ======================
     // CONFIG
-    // ==============================
-
+    // ======================
     const PIXEL_ID = "777552184901375";
     const ACCESS_TOKEN = "EAANAFTdfWwMBQ321pF0bswYFajsgcxCPniVgC4To7aqswt4wbSGs3eEgb6N84tOZBUyabl8eb4TRJ487T8A7KxMbr6qBMx7XL64YKZAqzGHB4clBW66L8j62uKCFbPW75wXVqzAfWvK9O9UuZAOPwikRZAK5thSZCEJZAtUuHGH673Fj11bFZBWBMDzcvqMshf02wZDZD";
-    const TEST_EVENT_CODE = "TEST16901"; // ← PON EL QUE VES EN TEST EVENTS
+    const TEST_EVENT_CODE = "TEST16901"; // usa el que aparece en Meta
 
     const GOOGLE_SCRIPT_URL =
       "https://script.google.com/macros/s/AKfycbwajXERqDZwOlQ8ozLuw--PNJdBvbxGtKL_TwMu6h_MrIwWmc63-UUIuXL6hKkhRuTEKw/exec";
 
-    // ==============================
-    // 1️⃣ GUARDAR EN GOOGLE SHEETS
-    // ==============================
+    // ======================
+    // VALIDAR EVENT ID (CLAVE)
+    // ======================
+    const eventId = body.eventId || crypto.randomUUID();
 
+    // ======================
+    // GUARDAR EN SHEETS
+    // ======================
     await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
-    // ==============================
-    // 2️⃣ META CONVERSION API
-    // ==============================
-
+    // ======================
+    // META CONVERSION API
+    // ======================
     const ip =
       context.request.headers.get("CF-Connecting-IP") ||
       context.request.headers.get("x-forwarded-for") ||
@@ -34,9 +36,6 @@ export async function onRequestPost(context) {
 
     const userAgent =
       context.request.headers.get("user-agent") || "";
-
-    // USAR EL MISMO EVENT ID DEL FRONTEND
-    const eventId = body.eventId || crypto.randomUUID();
 
     const userData = {
       em: body.email ? [await sha256(body.email)] : undefined,
@@ -54,7 +53,7 @@ export async function onRequestPost(context) {
           action_source: "website",
           event_source_url:
             context.request.headers.get("referer") || "",
-          event_id: eventId,
+          event_id: eventId, // ⭐ MISMO ID DEL FRONTEND
           user_data: userData
         }
       ],
@@ -73,18 +72,17 @@ export async function onRequestPost(context) {
     const metaData = await metaRes.json();
     console.log("META RESPONSE:", metaData);
 
-    return new Response(
-      JSON.stringify({ success: true, metaData }),
-      { headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { "Content-Type": "application/json" }
+    });
 
   } catch (error) {
     console.log("ERROR:", error);
 
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ success: false }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }
 
@@ -92,7 +90,6 @@ async function sha256(value) {
   const encoder = new TextEncoder();
   const data = encoder.encode(value.trim().toLowerCase());
   const hash = await crypto.subtle.digest("SHA-256", data);
-
   return Array.from(new Uint8Array(hash))
     .map(b => b.toString(16).padStart(2, "0"))
     .join("");
