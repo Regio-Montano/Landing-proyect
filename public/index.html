@@ -1,79 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TradingPro</title>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradingPro</title>
 
-    <!-- ✅ META PIXEL -->
-    <!-- Meta Pixel Code -->
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
 
-      fbq('init', '777552184901375');
-      fbq('track', 'PageView');
-    </script>
+fbq('init', '2409580849556712');
+fbq('track', 'PageView');
+</script>
 
-    <noscript>
-      <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=777552184901375&ev=PageView&noscript=1"/>
-    </noscript>
-    <!-- End Meta Pixel Code -->
+<noscript>
+<img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2409580849556712&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
 
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css"/>
 
-    <!-- intl-tel-input CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css"
-    />
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js" defer></script>
 
-    <!-- intl-tel-input JS -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"
-      defer
-    ></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js" defer></script>
 
-    <!-- utils.js -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
-      defer
-    ></script>
+<script>
+async function detectUserCountry(){
+try{
+const res=await fetch("/api/geo");
+const data=await res.json();
 
-    <!-- ⭐ DETECCIÓN DE PAÍS AUTOMÁTICA -->
-    <script>
-      async function detectUserCountry() {
-        try {
-          const res = await fetch("/api/geo");
-          const data = await res.json();
+let lang="es";
 
-          let lang = "es";
+if(data.country==="BR") lang="pt";
+if(data.country==="US") lang="en";
 
-          if (data.country === "BR") lang = "pt";
-          if (data.country === "US") lang = "en";
+window.APP_LANG=lang;
 
-          window.APP_LANG = lang;
+console.log("Idioma detectado:",lang);
+}catch(err){
+window.APP_LANG="es";
+}
+}
 
-          console.log("Idioma detectado:", lang);
-        } catch (err) {
-          window.APP_LANG = "es";
-        }
-      }
+detectUserCountry();
+</script>
 
-      detectUserCountry();
-    </script>
-  </head>
+</head>
 
-  <body>
-    <div id="root"></div>
-  </body>
+<body>
+<div id="root"></div>
+</body>
 </html>
