@@ -25,7 +25,6 @@ export default function ModernLeadForm({ lang = "es" }) {
 
   const t = text[lang] || text.es;
 
-  // país real detectado por Cloudflare Worker
   const [country, setCountry] = useState("MX");
 
   useEffect(() => {
@@ -51,10 +50,16 @@ export default function ModernLeadForm({ lang = "es" }) {
     }));
   };
 
-  // obtener lada
   const getLada = (phone) => {
     if (!phone) return "";
     return phone.replace(/\D/g, "").slice(0, 3);
+  };
+
+  const generateEventId = () => {
+    if (crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return Date.now().toString() + Math.random().toString(36).substring(2);
   };
 
   const handleSubmit = async (e) => {
@@ -63,13 +68,12 @@ export default function ModernLeadForm({ lang = "es" }) {
 
     try {
 
-      // ID único para deduplicación Meta browser/server
-      const eventId = crypto.randomUUID();
+      const eventId = generateEventId();
 
       const payload = {
         ...formData,
         campaign: "TRADING",
-        country,          // ← ahora viene del worker real
+        country,
         lada: getLada(formData.phone),
         lang,
         eventId
@@ -77,23 +81,33 @@ export default function ModernLeadForm({ lang = "es" }) {
 
       const res = await fetch("/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(payload)
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error();
 
-      // Pixel browser (se deduplica con server)
-      if (window.fbq) {
+      if (!res.ok || !data.success) {
+        throw new Error();
+      }
+
+      // Evento Lead para Meta Pixel
+      if (typeof window !== "undefined" && window.fbq) {
         window.fbq("track", "Lead", {}, { eventID: eventId });
       }
 
       setStatus("success");
       setMessage(t.success);
-      setFormData({ name: "", phone: "", email: "" });
 
-    } catch {
+      setFormData({
+        name: "",
+        phone: "",
+        email: ""
+      });
+
+    } catch (err) {
       setStatus("error");
       setMessage(t.error);
     }
@@ -130,16 +144,22 @@ export default function ModernLeadForm({ lang = "es" }) {
         style={inputStyle}
       />
 
-      <button type="submit" disabled={status==="loading"} style={buttonStyle}>
-        {status==="loading" ? t.sending : t.button}
+      <button
+        type="submit"
+        disabled={status === "loading"}
+        style={buttonStyle}
+      >
+        {status === "loading" ? t.sending : t.button}
       </button>
 
       {message && (
-        <p style={{
-          textAlign:"center",
-          fontSize:"14px",
-          color: status==="success" ? "green" : "red"
-        }}>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "14px",
+            color: status === "success" ? "green" : "red"
+          }}
+        >
           {message}
         </p>
       )}
@@ -147,29 +167,29 @@ export default function ModernLeadForm({ lang = "es" }) {
   );
 }
 
-const formStyle={
-  maxWidth:"420px",
-  margin:"0 auto",
-  display:"flex",
-  flexDirection:"column",
-  gap:"10px",
-  background:"rgba(255,255,255,0.9)",
-  padding:"20px",
-  borderRadius:"12px",
-  boxShadow:"0 8px 25px rgba(0,0,0,0.15)"
+const formStyle = {
+  maxWidth: "420px",
+  margin: "0 auto",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+  background: "rgba(255,255,255,0.9)",
+  padding: "20px",
+  borderRadius: "12px",
+  boxShadow: "0 8px 25px rgba(0,0,0,0.15)"
 };
 
-const inputStyle={
-  padding:"12px",
-  borderRadius:"8px",
-  border:"1px solid #ddd"
+const inputStyle = {
+  padding: "12px",
+  borderRadius: "8px",
+  border: "1px solid #ddd"
 };
 
-const buttonStyle={
-  padding:"12px",
-  background:"#22c55e",
-  color:"white",
-  border:"none",
-  borderRadius:"8px",
-  fontWeight:"bold"
+const buttonStyle = {
+  padding: "12px",
+  background: "#22c55e",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+  fontWeight: "bold"
 };
