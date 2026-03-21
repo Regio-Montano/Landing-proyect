@@ -14,7 +14,7 @@ const handleSubmit = async (e) => {
     };
 
     // 🔥 LLAMADA A TU CLOUDFLARE WORKER
-    const res = await fetch("https://TU-WORKER.workers.dev", {
+    const res = await fetch("https://lead-verification.sy447014.workers.dev", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
