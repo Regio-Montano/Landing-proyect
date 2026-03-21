@@ -6,6 +6,23 @@ const ModernLeadForm = ({ lang }) => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
+  const [country, setCountry] = useState('MX');
+
+  // Detectar país automáticamente
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        const res = await fetch("/api/geo");
+        const data = await res.json();
+        setCountry(data.country || 'MX');
+      } catch (error) {
+        console.log("Error detectando país → default MX");
+        setCountry('MX');
+      }
+    };
+
+    detectCountry();
+  }, []);
 
   const texts = {
     es: {
@@ -30,7 +47,37 @@ const ModernLeadForm = ({ lang }) => {
     }
   };
 
+  const countryCodes = {
+    MX: "+52",
+    BR: "+55",
+    AR: "+54",
+    CO: "+57",
+    CL: "+56",
+    PE: "+51",
+    VE: "+58",
+    EC: "+593",
+    BO: "+591",
+    PY: "+595",
+    UY: "+598"
+  };
+
   const t = texts[lang] || texts.es;
+
+  const formatPhone = (phone) => {
+    if (!phone) return "";
+
+    const prefix = countryCodes[country] || "+52";
+
+    // quitar todo lo que no sea número
+    const clean = phone.replace(/\D/g, "");
+
+    // si ya tiene prefijo no lo duplicamos
+    if (clean.startsWith(prefix.replace("+", ""))) {
+      return `+${clean}`;
+    }
+
+    return `${prefix}${clean}`;
+  };
 
   const generateEventId = () => Math.random().toString(36).substring(2, 15);
 
@@ -49,7 +96,7 @@ const ModernLeadForm = ({ lang }) => {
       const payload = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone
+        phone: formatPhone(formData.phone)
       };
 
       // 🔥 LLAMADA A TU CLOUDFLARE WORKER
@@ -133,7 +180,7 @@ const ModernLeadForm = ({ lang }) => {
           <input
             type="tel"
             name="phone"
-            placeholder={t.phone}
+            placeholder={`${countryCodes[country] || "+52"} 5551234567`}
             value={formData.phone}
             onChange={handleChange}
             className="w-full pl-10 pr-3 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900"
