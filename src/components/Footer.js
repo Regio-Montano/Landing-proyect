@@ -22,6 +22,11 @@ const Footer = ({ lang = "es" }) => {
     <footer className="bg-gray-900 text-white text-center py-8">
       <p>© 2024 marketcorp.org — {t.rights}</p>
       <p className="text-sm mt-2">{t.privacy}</p>
+      <p className="text-sm mt-2">
+        <a href="/privacy.html" className="underline hover:text-gray-300">
+          Privacy Policy
+        </a>
+      </p>
     </footer>
   );
 };
