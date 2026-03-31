@@ -55,12 +55,6 @@ const TestimonialsSection = ({ lang = "es" }) => {
 
   const t = text[lang];
 
-  const logos = [
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Binance_logo.svg/2560px-Binance_logo.svg.png',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/TradingView_Logo.svg/2560px-TradingView_Logo.svg.png',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/MetaTrader_4_logo.svg/2560px-MetaTrader_4_logo.svg.png'
-  ];
-
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4 max-w-4xl">
@@ -80,7 +74,7 @@ const TestimonialsSection = ({ lang = "es" }) => {
         </motion.h2>
 
         {/* TESTIMONIOS */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-3 gap-8">
           {t.testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
@@ -112,34 +106,6 @@ const TestimonialsSection = ({ lang = "es" }) => {
             </motion.div>
           ))}
         </div>
-
-        {/* LOGOS */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">
-            {t.trust}
-          </h3>
-
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            {logos.map((logo, index) => (
-              <motion.img
-                key={index}
-                src={logo}
-                alt={`Logo ${index + 1}`}
-                className="h-12 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
-                viewport={{ once: true }}
-              />
-            ))}
-          </div>
-        </motion.div>
 
       </div>
     </section>
