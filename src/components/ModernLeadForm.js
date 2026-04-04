@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, Phone, Loader } from 'lucide-react';
 
-const ModernLeadForm = ({ lang }) => {
+const ModernLeadForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
   const [country, setCountry] = useState('MX');
 
-  const [step, setStep] = useState("form"); // 🔥 clave
+  const [step, setStep] = useState("form");
   const [otp, setOtp] = useState("");
 
   useEffect(() => {
@@ -49,6 +49,7 @@ const ModernLeadForm = ({ lang }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
+    setMessage("");
 
     try {
       const payload = {
@@ -56,6 +57,8 @@ const ModernLeadForm = ({ lang }) => {
         email: formData.email,
         phone: formatPhone(formData.phone)
       };
+
+      console.log("ENVIANDO OTP:", payload);
 
       const res = await fetch("https://lead-verification.sy447014.workers.dev", {
         method: "POST",
@@ -67,15 +70,18 @@ const ModernLeadForm = ({ lang }) => {
 
       const data = await res.json();
 
+      console.log("RESPUESTA OTP:", data);
+
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Error enviando OTP");
       }
 
-      setStep("otp"); // 🔥 aquí cambias de pantalla
+      setStep("otp");
       setStatus("success");
       setMessage("Ingresa el código que te enviamos 📲");
 
     } catch (err) {
+      console.error(err);
       setStatus("error");
       setMessage(err.message);
     }
@@ -84,20 +90,27 @@ const ModernLeadForm = ({ lang }) => {
   // 🔐 VALIDAR OTP
   const verifyOTP = async () => {
     setStatus("loading");
+    setMessage("");
 
     try {
+      const payload = {
+        phone: formatPhone(formData.phone),
+        code: otp
+      };
+
+      console.log("VERIFICANDO OTP:", payload);
+
       const res = await fetch("https://lead-verification.sy447014.workers.dev/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          phone: formatPhone(formData.phone),
-          code: otp
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
+
+      console.log("RESPUESTA VERIFY:", data);
 
       if (!res.ok || !data.success) {
         throw new Error("Código incorrecto");
@@ -113,12 +126,14 @@ const ModernLeadForm = ({ lang }) => {
   };
 
   return (
-    <motion.div
-      className="bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 shadow-xl max-w-md mx-auto"
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+    <motion.div className="bg-white p-6 rounded-xl max-w-md mx-auto">
+
+      {/* 🔥 DEBUG VISUAL */}
+      <div className="text-xs text-gray-400 mb-2">
+        STEP: {step}
+      </div>
+
+      <h2 className="text-2xl font-bold text-center mb-4">
         ¡Regístrate Ahora!
       </h2>
 
@@ -129,70 +144,60 @@ const ModernLeadForm = ({ lang }) => {
       )}
 
       {step === "form" ? (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          <div className="relative">
-            <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              name="name"
-              placeholder="Tu Nombre"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full pl-10 py-3 border rounded-md"
-              required
-            />
-          </div>
+          <input
+            type="text"
+            name="name"
+            placeholder="Nombre"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full p-3 border rounded"
+            required
+          />
 
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <input
-              type="email"
-              name="email"
-              placeholder="Tu Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full pl-10 py-3 border rounded-md"
-              required
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full p-3 border rounded"
+            required
+          />
 
-          <div className="relative">
-            <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="+52 5551234567"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full pl-10 py-3 border rounded-md"
-              required
-            />
-          </div>
+          <input
+            type="tel"
+            name="phone"
+            placeholder="+52 5551234567"
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full p-3 border rounded"
+            required
+          />
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-3 rounded-md"
-            disabled={status === 'loading'}
+            className="w-full bg-indigo-600 text-white py-3 rounded"
           >
             {status === 'loading' ? <Loader className="animate-spin mx-auto" /> : "Enviar"}
           </button>
 
         </form>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
 
           <input
             type="text"
-            placeholder="Código de verificación"
+            placeholder="Código OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="w-full px-4 py-3 border rounded-md text-center text-lg"
+            className="w-full p-3 border rounded text-center text-lg"
           />
 
           <button
             onClick={verifyOTP}
-            className="w-full bg-green-600 text-white py-3 rounded-md"
+            className="w-full bg-green-600 text-white py-3 rounded"
           >
             Verificar código
           </button>
