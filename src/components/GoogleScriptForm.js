@@ -2,39 +2,40 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, User, Phone, CheckCircle2, AlertTriangle, Loader } from 'lucide-react';
 
-const GoogleScriptForm = () => {
-  const [formData, setFormData] = useState({ name: '', phone: '', email: '', _hp: '' }); // '_hp' para honeypot
+const GoogleSheetsForm = () => {
+  const [formData, setFormData] = useState({ name: '', phone: '', email: '', hp: '' }); // 'hp' para honeypot
   const [formStatus, setFormStatus] = useState('idle'); // 'idle', 'submitting', 'success', 'error'
   const [formMessage, setFormMessage] = useState('');
 
-  // ¡Aquí está tu URL de Google Apps Script!
+  // Tu URL de Google Apps Script
   const scriptURL = "https://script.google.com/macros/s/AKfycbw6oaBNu2mWaky1ZB-Sxy7JNyW2vq1Prp_5zizPlCSXpfDuW_bkoBHq9Cs_5_U1Hx0Caw/exec";
 
-  const onChange = (e) => {
-    setFormData((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const onSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Honeypot: si el campo '_hp' tiene valor, es un bot.
-    if (formData._hp.trim() !== "") {
-      console.log("Bot detectado (honeypot). No se envía el formulario.");
-      setFormStatus('idle'); // No cambiar el estado visible
+    // Honeypot check: si el campo 'hp' tiene valor, es un bot.
+    if (formData.hp.trim() !== "") {
+      console.log("Bot detectado (honeypot). Formulario no enviado.");
+      setFormStatus('idle'); // No cambiar el estado visible al usuario
       setFormMessage(''); // No mostrar mensaje de error al usuario
       return;
     }
 
-    // Validaciones básicas
+    // Validación básica de campos vacíos
     if (!formData.name.trim() || !formData.phone.trim() || !formData.email.trim()) {
-      setFormMessage("Por favor completa todos los campos.");
+      setFormMessage("Por favor, completa todos los campos.");
       setFormStatus('error');
       return;
     }
 
     setFormStatus('submitting');
-    setFormMessage(''); // Limpiar mensajes previos
-
+    setFormMessage('Enviando...'); // Mensaje de "Enviando..."
+    
     const payload = {
       name: formData.name.trim(),
       phone: formData.phone.trim(),
@@ -51,15 +52,15 @@ const GoogleScriptForm = () => {
       const data = await res.json();
 
       if (res.ok && data?.result === "success") {
-        setFormMessage("✅ ¡Registro exitoso! Pronto nos pondremos en contacto.");
+        setFormMessage("✅ Registro exitoso");
         setFormStatus('success');
-        setFormData({ name: '', phone: '', email: '', _hp: '' }); // Limpiar campos
+        setFormData({ name: '', phone: '', email: '', hp: '' }); // Limpiar campos
       } else {
-        throw new Error(data?.message || "Falló el guardado.");
+        throw new Error(data?.message || "Falló el guardado en el servidor.");
       }
     } catch (err) {
       console.error("Error al enviar el formulario:", err);
-      setFormMessage("❌ Hubo un error al enviar. Intenta de nuevo.");
+      setFormMessage("❌ Error al registrar");
       setFormStatus('error');
     }
   };
@@ -78,17 +79,17 @@ const GoogleScriptForm = () => {
         Accede al entrenamiento de trading y contenidos exclusivos.
       </p>
 
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Honeypot (anti-bots): mantener oculto */}
         <input 
           type="text" 
-          name="_hp" 
-          id="_hp" 
+          name="hp" 
+          id="hp" 
           autoComplete="off" 
           tabIndex="-1" 
-          value={formData._hp}
-          onChange={onChange}
-          style={{ position: 'absolute', left: '-9999px', opacity: 0 }} 
+          value={formData.hp}
+          onChange={handleChange}
+          style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, width: 0 }} 
         />
 
         <motion.div 
@@ -103,7 +104,7 @@ const GoogleScriptForm = () => {
             name="name"
             id="name"
             value={formData.name}
-            onChange={onChange}
+            onChange={handleChange}
             placeholder="Tu Nombre"
             className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-300 text-gray-900"
             required
@@ -123,10 +124,8 @@ const GoogleScriptForm = () => {
             name="phone"
             id="phone"
             value={formData.phone}
-            onChange={onChange}
+            onChange={handleChange}
             placeholder="Tu Teléfono"
-            pattern="[0-9+\s()-]{7,}" 
-            title="Sólo números, +, espacios, () y -"
             className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-300 text-gray-900"
             required
             disabled={formStatus === 'submitting'}
@@ -145,7 +144,7 @@ const GoogleScriptForm = () => {
             name="email"
             id="email"
             value={formData.email}
-            onChange={onChange}
+            onChange={handleChange}
             placeholder="Tu Correo Electrónico"
             className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-300 text-gray-900"
             required
@@ -188,13 +187,18 @@ const GoogleScriptForm = () => {
           <motion.div
             id="msg"
             role="alert"
-            className={`text-sm mt-2 ${
-              formStatus === 'success' ? 'text-green-600' : 'text-red-600'
+            className={`text-sm mt-2 p-3 rounded-lg flex items-center gap-2 ${
+              formStatus === 'success' 
+                ? 'bg-green-50 text-green-700 border border-green-200' 
+                : formStatus === 'error'
+                  ? 'bg-red-50 text-red-700 border border-red-200'
+                  : 'bg-yellow-50 text-yellow-700 border border-yellow-200' // Para 'submitting'
             }`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
+            {formStatus === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
             {formMessage}
           </motion.div>
         )}
@@ -203,4 +207,4 @@ const GoogleScriptForm = () => {
   );
 };
 
-export default GoogleScriptForm;
+export default GoogleSheetsForm;
