@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
 
+const API_BASE = "https://lead-verification.sy447014.workers.dev";
+
 const ModernLeadForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('idle');
@@ -53,12 +55,10 @@ const ModernLeadForm = () => {
 
     try {
       const payload = {
-        name: formData.name,
-        email: formData.email,
         phone: formatPhone(formData.phone)
       };
 
-      const res = await fetch("https://lead-verification.sy447014.workers.dev", {
+      const res = await fetch(`${API_BASE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -77,8 +77,9 @@ const ModernLeadForm = () => {
       setMessage("Ingresa el código que te enviamos 📲");
 
     } catch (err) {
+      console.error("OTP ERROR:", err);
       setStatus("error");
-      setMessage(err.message);
+      setMessage("Error enviando OTP");
     }
   };
 
@@ -89,7 +90,7 @@ const ModernLeadForm = () => {
 
     try {
       // 1️⃣ Verificar OTP
-      const res = await fetch("https://lead-verification.sy447014.workers.dev/verify", {
+      const res = await fetch(`${API_BASE}/verify`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -106,37 +107,34 @@ const ModernLeadForm = () => {
         throw new Error("Código incorrecto");
       }
 
-      // 2️⃣ Guardar en Sheets (vía Worker)
-      const sheetRes = await fetch(
-        "https://lead-verification.sy447014.workers.dev/save-lead",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formatPhone(formData.phone)
-          })
-        }
-      );
+      // 2️⃣ Guardar lead (🔥 FIX IMPORTANTE: agregar country)
+      const saveRes = await fetch(`${API_BASE}/save-lead`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formatPhone(formData.phone),
+          country: country   // 🔥 CLAVE
+        })
+      });
 
-      const sheetData = await sheetRes.json();
+      const saveData = await saveRes.json();
 
-      console.log("SHEETS RESPONSE:", sheetData);
+      console.log("SAVE RESPONSE:", saveData);
 
-      // ✅ FIX REAL AQUÍ
-      if (!sheetRes.ok || !sheetData.success) {
-        throw new Error("Error guardando lead");
+      if (!saveRes.ok || !saveData.success) {
+        throw new Error(saveData.error || "Error guardando lead");
       }
 
-      // 3️⃣ SUCCESS FINAL
+      // 3️⃣ SUCCESS
       setStatus("success");
       setMessage("✅ Número verificado y registro completado");
 
     } catch (err) {
-      console.error(err);
+      console.error("VERIFY ERROR:", err);
       setStatus("error");
       setMessage(err.message);
     }
@@ -196,7 +194,9 @@ const ModernLeadForm = () => {
             type="submit"
             className="w-full bg-indigo-600 text-white py-3 rounded"
           >
-            {status === 'loading' ? <Loader className="animate-spin mx-auto" /> : "Enviar"}
+            {status === 'loading'
+              ? <Loader className="animate-spin mx-auto" />
+              : "Enviar"}
           </button>
 
         </form>
@@ -215,7 +215,9 @@ const ModernLeadForm = () => {
             onClick={verifyOTP}
             className="w-full bg-green-600 text-white py-3 rounded"
           >
-            {status === 'loading' ? <Loader className="animate-spin mx-auto" /> : "Verificar código"}
+            {status === 'loading'
+              ? <Loader className="animate-spin mx-auto" />
+              : "Verificar código"}
           </button>
 
         </div>
