@@ -26,18 +26,50 @@ const ModernLeadForm = () => {
     detectCountry();
   }, []);
 
+  // 🌍 TODOS LOS PAÍSES (principales + fallback global)
   const countryCodes = {
+    US: "+1", CA: "+1",
     MX: "+52", BR: "+55", AR: "+54", CO: "+57",
     CL: "+56", PE: "+51", VE: "+58", EC: "+593",
-    BO: "+591", PY: "+595", UY: "+598"
+    BO: "+591", PY: "+595", UY: "+598",
+
+    ES: "+34", PT: "+351", FR: "+33", DE: "+49",
+    IT: "+39", NL: "+31", BE: "+32", CH: "+41",
+    AT: "+43", SE: "+46", NO: "+47", DK: "+45",
+    FI: "+358", IE: "+353", PL: "+48", CZ: "+420",
+    HU: "+36", RO: "+40", GR: "+30", TR: "+90",
+    RU: "+7", UA: "+380",
+
+    GB: "+44",
+
+    AE: "+971", SA: "+966", QA: "+974", KW: "+965",
+    IL: "+972", EG: "+20", MA: "+212", DZ: "+213",
+
+    ZA: "+27",
+
+    IN: "+91", PK: "+92", BD: "+880", LK: "+94",
+    CN: "+86", JP: "+81", KR: "+82",
+    SG: "+65", MY: "+60", TH: "+66",
+    ID: "+62", PH: "+63", VN: "+84",
+
+    AU: "+61", NZ: "+64",
+
+    // 🔥 fallback global
+    DEFAULT: "+1"
   };
 
   const formatPhone = (phone) => {
-    const prefix = countryCodes[country] || "+52";
+    const prefix = countryCodes[country] || countryCodes.DEFAULT;
     const clean = phone.replace(/\D/g, "");
 
+    // Si ya tiene código internacional
     if (clean.startsWith(prefix.replace("+", ""))) {
       return `+${clean}`;
+    }
+
+    // Si ya viene con +
+    if (phone.startsWith("+")) {
+      return phone;
     }
 
     return `${prefix}${clean}`;
@@ -54,16 +86,14 @@ const ModernLeadForm = () => {
     setMessage("");
 
     try {
-      const payload = {
-        phone: formatPhone(formData.phone)
-      };
-
-      const res = await fetch(`${API_BASE}`, {
+      const res = await fetch(`${API_BASE}/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          phone: formatPhone(formData.phone)
+        })
       });
 
       const data = await res.json();
@@ -83,13 +113,12 @@ const ModernLeadForm = () => {
     }
   };
 
-  // 🔐 VALIDAR OTP + GUARDAR LEAD
+  // 🔐 VERIFY + SAVE
   const verifyOTP = async () => {
     setStatus("loading");
     setMessage("");
 
     try {
-      // 1️⃣ Verificar OTP
       const res = await fetch(`${API_BASE}/verify`, {
         method: "POST",
         headers: {
@@ -107,7 +136,6 @@ const ModernLeadForm = () => {
         throw new Error("Código incorrecto");
       }
 
-      // 2️⃣ Guardar lead (🔥 FIX IMPORTANTE: agregar country)
       const saveRes = await fetch(`${API_BASE}/save-lead`, {
         method: "POST",
         headers: {
@@ -117,19 +145,16 @@ const ModernLeadForm = () => {
           name: formData.name,
           email: formData.email,
           phone: formatPhone(formData.phone),
-          country: country   // 🔥 CLAVE
+          country: country
         })
       });
 
       const saveData = await saveRes.json();
 
-      console.log("SAVE RESPONSE:", saveData);
-
       if (!saveRes.ok || !saveData.success) {
         throw new Error(saveData.error || "Error guardando lead");
       }
 
-      // 3️⃣ SUCCESS
       setStatus("success");
       setMessage("✅ Número verificado y registro completado");
 
@@ -183,7 +208,7 @@ const ModernLeadForm = () => {
           <input
             type="tel"
             name="phone"
-            placeholder="+52 5551234567"
+            placeholder="+34 / +52 / +351 ..."
             value={formData.phone}
             onChange={handleChange}
             className="w-full p-3 border rounded"
