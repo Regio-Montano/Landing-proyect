@@ -106,7 +106,7 @@ const ModernLeadForm = () => {
         throw new Error("Código incorrecto");
       }
 
-      // 2️⃣ GUARDAR EN GOOGLE SHEETS 🔥
+      // 2️⃣ Guardar en Sheets (vía Worker)
       const sheetRes = await fetch(
         "https://lead-verification.sy447014.workers.dev/save-lead",
         {
@@ -124,7 +124,10 @@ const ModernLeadForm = () => {
 
       const sheetData = await sheetRes.json();
 
-      if (!sheetRes.ok || sheetData.result !== "success") {
+      console.log("SHEETS RESPONSE:", sheetData);
+
+      // ✅ FIX REAL AQUÍ
+      if (!sheetRes.ok || !sheetData.success) {
         throw new Error("Error guardando lead");
       }
 
@@ -133,6 +136,7 @@ const ModernLeadForm = () => {
       setMessage("✅ Número verificado y registro completado");
 
     } catch (err) {
+      console.error(err);
       setStatus("error");
       setMessage(err.message);
     }
