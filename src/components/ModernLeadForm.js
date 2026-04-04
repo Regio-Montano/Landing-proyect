@@ -70,14 +70,14 @@ const ModernLeadForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🚀 ENVIAR OTP (FIX AQUÍ)
+  // 🚀 SEND OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
     setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}`, { // 🔥 CAMBIO CLAVE
+      const res = await fetch(`${API_BASE}/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -196,15 +196,22 @@ const ModernLeadForm = () => {
             required
           />
 
-          <input
-            type="tel"
-            name="phone"
-            placeholder="+34 / +52 / +351 ..."
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full p-3 border rounded"
-            required
-          />
+          {/* 🔥 TELÉFONO UX PRO */}
+          <div className="flex">
+            <div className="bg-gray-100 px-3 flex items-center border border-r-0 rounded-l">
+              {countryCodes[country] || "+1"}
+            </div>
+
+            <input
+              type="tel"
+              name="phone"
+              placeholder="123456789"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-r"
+              required
+            />
+          </div>
 
           <button
             type="submit"
