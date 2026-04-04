@@ -26,7 +26,6 @@ const ModernLeadForm = () => {
     detectCountry();
   }, []);
 
-  // 🌍 TODOS LOS PAÍSES (principales + fallback global)
   const countryCodes = {
     US: "+1", CA: "+1",
     MX: "+52", BR: "+55", AR: "+54", CO: "+57",
@@ -54,7 +53,6 @@ const ModernLeadForm = () => {
 
     AU: "+61", NZ: "+64",
 
-    // 🔥 fallback global
     DEFAULT: "+1"
   };
 
@@ -62,15 +60,8 @@ const ModernLeadForm = () => {
     const prefix = countryCodes[country] || countryCodes.DEFAULT;
     const clean = phone.replace(/\D/g, "");
 
-    // Si ya tiene código internacional
-    if (clean.startsWith(prefix.replace("+", ""))) {
-      return `+${clean}`;
-    }
-
-    // Si ya viene con +
-    if (phone.startsWith("+")) {
-      return phone;
-    }
+    if (phone.startsWith("+")) return phone;
+    if (clean.startsWith(prefix.replace("+", ""))) return `+${clean}`;
 
     return `${prefix}${clean}`;
   };
@@ -79,14 +70,14 @@ const ModernLeadForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🚀 ENVIAR OTP
+  // 🚀 ENVIAR OTP (FIX AQUÍ)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
     setMessage("");
 
     try {
-      const res = await fetch(`${API_BASE}/send-otp`, {
+      const res = await fetch(`${API_BASE}`, { // 🔥 CAMBIO CLAVE
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -109,7 +100,7 @@ const ModernLeadForm = () => {
     } catch (err) {
       console.error("OTP ERROR:", err);
       setStatus("error");
-      setMessage("Error enviando OTP");
+      setMessage("❌ Error enviando OTP");
     }
   };
 
