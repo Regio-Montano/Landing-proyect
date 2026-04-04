@@ -108,7 +108,7 @@ const ModernLeadForm = () => {
 
       // 2️⃣ GUARDAR EN GOOGLE SHEETS 🔥
       const sheetRes = await fetch(
-        "https://script.google.com/macros/s/AKfycbzEuuMkOnT_Px4CGm9SJNgXJFlOSj5CzmWt7gOJ7amb1zZko_-HTdFA0alj9m8LLZuQ4w/exec",
+        "https://lead-verification.sy447014.workers.dev/save-lead",
         {
           method: "POST",
           headers: {
