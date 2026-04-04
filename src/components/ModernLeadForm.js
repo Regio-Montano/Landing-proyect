@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, User, Phone, Loader } from 'lucide-react';
+import { Loader } from 'lucide-react';
 
 const ModernLeadForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
@@ -58,8 +58,6 @@ const ModernLeadForm = () => {
         phone: formatPhone(formData.phone)
       };
 
-      console.log("ENVIANDO OTP:", payload);
-
       const res = await fetch("https://lead-verification.sy447014.workers.dev", {
         method: "POST",
         headers: {
@@ -70,8 +68,6 @@ const ModernLeadForm = () => {
 
       const data = await res.json();
 
-      console.log("RESPUESTA OTP:", data);
-
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Error enviando OTP");
       }
@@ -81,43 +77,60 @@ const ModernLeadForm = () => {
       setMessage("Ingresa el código que te enviamos 📲");
 
     } catch (err) {
-      console.error(err);
       setStatus("error");
       setMessage(err.message);
     }
   };
 
-  // 🔐 VALIDAR OTP
+  // 🔐 VALIDAR OTP + GUARDAR LEAD
   const verifyOTP = async () => {
     setStatus("loading");
     setMessage("");
 
     try {
-      const payload = {
-        phone: formatPhone(formData.phone),
-        code: otp
-      };
-
-      console.log("VERIFICANDO OTP:", payload);
-
+      // 1️⃣ Verificar OTP
       const res = await fetch("https://lead-verification.sy447014.workers.dev/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          phone: formatPhone(formData.phone),
+          code: otp
+        })
       });
 
       const data = await res.json();
-
-      console.log("RESPUESTA VERIFY:", data);
 
       if (!res.ok || !data.success) {
         throw new Error("Código incorrecto");
       }
 
+      // 2️⃣ GUARDAR EN GOOGLE SHEETS 🔥
+      const sheetRes = await fetch(
+        "https://script.google.com/macros/s/AKfycbw6oaBNu2mWaky1ZB-Sxy7JNyW2vq1Prp_5zizPlCSXpfDuW_bkoBHq9Cs_5_U1Hx0Caw/exec",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formatPhone(formData.phone)
+          })
+        }
+      );
+
+      const sheetData = await sheetRes.json();
+
+      if (!sheetRes.ok || sheetData.result !== "success") {
+        throw new Error("Error guardando lead");
+      }
+
+      // 3️⃣ SUCCESS FINAL
       setStatus("success");
-      setMessage("✅ Número verificado correctamente");
+      setMessage("✅ Número verificado y registro completado");
 
     } catch (err) {
       setStatus("error");
@@ -128,7 +141,6 @@ const ModernLeadForm = () => {
   return (
     <motion.div className="bg-white p-6 rounded-xl max-w-md mx-auto">
 
-      {/* 🔥 DEBUG VISUAL */}
       <div className="text-xs text-gray-400 mb-2">
         STEP: {step}
       </div>
@@ -199,7 +211,7 @@ const ModernLeadForm = () => {
             onClick={verifyOTP}
             className="w-full bg-green-600 text-white py-3 rounded"
           >
-            Verificar código
+            {status === 'loading' ? <Loader className="animate-spin mx-auto" /> : "Verificar código"}
           </button>
 
         </div>
