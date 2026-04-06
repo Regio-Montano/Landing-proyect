@@ -59,7 +59,6 @@ const ModernLeadForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🚀 SEND OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,12 +74,8 @@ const ModernLeadForm = () => {
     try {
       const res = await fetch(`${API_BASE}/send-otp`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          phone: formatPhone()
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formatPhone() })
       });
 
       const data = await res.json();
@@ -90,17 +85,15 @@ const ModernLeadForm = () => {
       }
 
       setStep("otp");
-      setStatus("success");
       setMessage("Ingresa el código 📲");
+      setStatus("success");
 
     } catch (err) {
-      console.error(err);
       setStatus("error");
       setMessage("❌ Error enviando OTP");
     }
   };
 
-  // 🔐 VERIFY + SAVE
   const verifyOTP = async () => {
     setStatus("loading");
     setMessage("");
@@ -108,9 +101,7 @@ const ModernLeadForm = () => {
     try {
       const res = await fetch(`${API_BASE}/verify`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: formatPhone(),
           code: otp
@@ -118,52 +109,51 @@ const ModernLeadForm = () => {
       });
 
       const data = await res.json();
-
       if (!data.success) throw new Error("Código incorrecto");
 
       const saveRes = await fetch(`${API_BASE}/save-lead`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           phone: formatPhone(),
-          country: country
+          country
         })
       });
 
       const saveData = await saveRes.json();
-
-      if (!saveData.success) {
-        console.log(saveData);
-        throw new Error("Error en Notion");
-      }
+      if (!saveData.success) throw new Error("Error en Notion");
 
       setStatus("success");
       setMessage("✅ Registro completado");
 
     } catch (err) {
-      console.error(err);
       setStatus("error");
       setMessage(err.message);
     }
   };
 
   return (
-    <motion.div className="bg-white p-6 rounded-xl max-w-md mx-auto">
+    <motion.div
+      style={{
+        opacity: 1,
+        backgroundColor: "#ffffff",
+        color: "#111827"
+      }}
+      className="p-8 rounded-2xl max-w-md mx-auto shadow-xl border"
+    >
 
-      <div className="text-xs text-gray-400 mb-2">
+      <div className="text-xs mb-2 text-center font-medium">
         STEP: {step}
       </div>
 
-      <h2 className="text-2xl font-bold text-center mb-4">
+      <h2 className="text-2xl font-bold text-center mb-6">
         Regístrate
       </h2>
 
       {message && (
-        <div className={`text-center mb-4 ${status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+        <div className={`text-center mb-4 font-medium ${status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
           {message}
         </div>
       )}
@@ -177,7 +167,8 @@ const ModernLeadForm = () => {
             placeholder="Nombre completo"
             value={formData.name}
             onChange={handleChange}
-            className="w-full p-3 border rounded"
+            style={{ background: "#fff", color: "#111", opacity: 1 }}
+            className="w-full p-3 border rounded-lg"
             required
           />
 
@@ -187,14 +178,24 @@ const ModernLeadForm = () => {
             placeholder="correo@email.com"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-3 border rounded"
+            style={{ background: "#fff", color: "#111", opacity: 1 }}
+            className="w-full p-3 border rounded-lg"
             required
           />
 
-          {/* 🔥 TELÉFONO PRO */}
+          {/* 🔥 TELÉFONO BLINDADO */}
           <div className="flex">
 
-            <div className="bg-gray-100 px-3 flex items-center border border-r-0 rounded-l font-semibold">
+            <div
+              style={{
+                background: "#111827",
+                color: "#fff",
+                opacity: 1,
+                border: "1px solid #d1d5db",
+                borderRight: "0"
+              }}
+              className="px-4 flex items-center rounded-l-lg font-semibold"
+            >
               {getPrefix()}
             </div>
 
@@ -203,7 +204,12 @@ const ModernLeadForm = () => {
               placeholder={phonePlaceholders[country] || phonePlaceholders.DEFAULT}
               value={formData.phone}
               onChange={handlePhoneChange}
-              className="w-full p-3 border rounded-r"
+              style={{
+                background: "#ffffff",
+                color: "#111827",
+                opacity: 1
+              }}
+              className="w-full p-3 border rounded-r-lg"
               required
             />
 
@@ -211,7 +217,7 @@ const ModernLeadForm = () => {
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-3 rounded"
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold"
           >
             {status === 'loading'
               ? <Loader className="animate-spin mx-auto" />
@@ -227,12 +233,13 @@ const ModernLeadForm = () => {
             placeholder="Código OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="w-full p-3 border rounded text-center text-lg"
+            style={{ background: "#fff", color: "#111", opacity: 1 }}
+            className="w-full p-3 border rounded-lg text-center text-lg"
           />
 
           <button
             onClick={verifyOTP}
-            className="w-full bg-green-600 text-white py-3 rounded"
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold"
           >
             {status === 'loading'
               ? <Loader className="animate-spin mx-auto" />
