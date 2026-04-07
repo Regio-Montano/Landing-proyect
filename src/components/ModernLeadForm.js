@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
 
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+
 const API_BASE = "https://lead-verification.sy447014.workers.dev";
 
 const ModernLeadForm = () => {
@@ -9,7 +12,7 @@ const ModernLeadForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
-  const [country, setCountry] = useState('MX');
+  const [country, setCountry] = useState('mx');
 
   const [step, setStep] = useState("form");
   const [otp, setOtp] = useState("");
@@ -19,40 +22,20 @@ const ModernLeadForm = () => {
       try {
         const res = await fetch("/api/geo");
         const data = await res.json();
-        setCountry(data.country || 'MX');
+
+        // 🔥 normaliza país SIEMPRE
+        const detected = (data?.country || 'MX').toLowerCase();
+
+        setCountry(detected);
       } catch {
-        setCountry('MX');
+        setCountry('mx');
       }
     };
     detectCountry();
   }, []);
 
-  const countryCodes = {
-    US: "+1", CA: "+1",
-    MX: "+52", BR: "+55", AR: "+54", CO: "+57",
-    ES: "+34", PT: "+351",
-    DEFAULT: "+1"
-  };
-
-  const phonePlaceholders = {
-    MX: "55 1234 5678",
-    US: "201 555 0123",
-    ES: "612 34 56 78",
-    PT: "912 345 678",
-    DEFAULT: "123456789"
-  };
-
-  const getPrefix = () => countryCodes[country] || countryCodes.DEFAULT;
-
   const formatPhone = () => {
-    const prefix = getPrefix();
-    const clean = formData.phone.replace(/\D/g, "");
-    return `${prefix}${clean}`;
-  };
-
-  const handlePhoneChange = (e) => {
-    const clean = e.target.value.replace(/\D/g, "");
-    setFormData({ ...formData, phone: clean });
+    return `+${formData.phone}`;
   };
 
   const handleChange = (e) => {
@@ -149,7 +132,7 @@ const ModernLeadForm = () => {
       </div>
 
       <h2 className="text-2xl font-bold text-center mb-6">
-        Regístrate
+        Regístrate 🚀
       </h2>
 
       {message && (
@@ -167,7 +150,6 @@ const ModernLeadForm = () => {
             placeholder="Nombre completo"
             value={formData.name}
             onChange={handleChange}
-            style={{ background: "#fff", color: "#111", opacity: 1 }}
             className="w-full p-3 border rounded-lg"
             required
           />
@@ -178,42 +160,33 @@ const ModernLeadForm = () => {
             placeholder="correo@email.com"
             value={formData.email}
             onChange={handleChange}
-            style={{ background: "#fff", color: "#111", opacity: 1 }}
             className="w-full p-3 border rounded-lg"
             required
           />
 
-          {/* 🔥 TELÉFONO BLINDADO */}
-          <div className="flex">
-
-            <div
-              style={{
-                background: "#111827",
-                color: "#fff",
-                opacity: 1,
-                border: "1px solid #d1d5db",
-                borderRight: "0"
-              }}
-              className="px-4 flex items-center rounded-l-lg font-semibold"
-            >
-              {getPrefix()}
-            </div>
-
-            <input
-              type="tel"
-              placeholder={phonePlaceholders[country] || phonePlaceholders.DEFAULT}
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              style={{
-                background: "#ffffff",
-                color: "#111827",
-                opacity: 1
-              }}
-              className="w-full p-3 border rounded-r-lg"
-              required
-            />
-
-          </div>
+          {/* 🔥 TELÉFONO CORREGIDO */}
+          <PhoneInput
+            country={country}
+            enableSearch={true}
+            disableDropdown={false}
+            value={formData.phone}
+            onChange={(value) =>
+              setFormData({ ...formData, phone: value })
+            }
+            inputStyle={{
+              width: '100%',
+              height: '48px',
+              borderRadius: '8px',
+              border: '1px solid #d1d5db'
+            }}
+            buttonStyle={{
+              borderTopLeftRadius: '8px',
+              borderBottomLeftRadius: '8px'
+            }}
+            containerStyle={{
+              width: '100%'
+            }}
+          />
 
           <button
             type="submit"
@@ -233,7 +206,6 @@ const ModernLeadForm = () => {
             placeholder="Código OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            style={{ background: "#fff", color: "#111", opacity: 1 }}
             className="w-full p-3 border rounded-lg text-center text-lg"
           />
 
