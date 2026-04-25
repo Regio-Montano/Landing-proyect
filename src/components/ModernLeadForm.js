@@ -39,11 +39,11 @@ const ModernLeadForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔥 DISPARO DIRECTO + DEBUG REAL
+  // 🔥 PIXEL ROBUSTO (CON RETRY REAL)
   const firePixelLead = () => {
     console.log("🚀 INTENTANDO DISPARAR LEAD");
 
-    try {
+    const tryFire = () => {
       if (typeof window !== "undefined" && typeof window.fbq === "function") {
 
         window.fbq('track', 'Lead', {
@@ -55,12 +55,12 @@ const ModernLeadForm = () => {
         console.log("✅ fbq track ejecutado");
 
       } else {
-        console.warn("❌ fbq NO está disponible");
+        console.warn("⏳ fbq no listo, reintentando...");
+        setTimeout(tryFire, 500);
       }
+    };
 
-    } catch (err) {
-      console.error("💥 ERROR PIXEL:", err);
-    }
+    tryFire();
   };
 
   const handleSubmit = async (e) => {
@@ -131,8 +131,10 @@ const ModernLeadForm = () => {
       const saveData = await saveRes.json();
       if (!saveData.success) throw new Error("Error en registro");
 
-      // 🔥 3. DISPARO INMEDIATO (SIN RETRY)
-      firePixelLead();
+      // 🔥 3. DISPARO CORRECTO (TIMING + RETRY)
+      setTimeout(() => {
+        firePixelLead();
+      }, 300);
 
       setStatus("success");
       setMessage("✅ Registro completado");
