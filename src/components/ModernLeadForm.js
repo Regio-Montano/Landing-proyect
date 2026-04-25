@@ -22,10 +22,7 @@ const ModernLeadForm = () => {
       try {
         const res = await fetch("/api/geo");
         const data = await res.json();
-
-        // 🔥 normaliza país SIEMPRE
         const detected = (data?.country || 'MX').toLowerCase();
-
         setCountry(detected);
       } catch {
         setCountry('mx');
@@ -82,6 +79,7 @@ const ModernLeadForm = () => {
     setMessage("");
 
     try {
+      // 1. Verificar OTP
       const res = await fetch(`${API_BASE}/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -94,6 +92,7 @@ const ModernLeadForm = () => {
       const data = await res.json();
       if (!data.success) throw new Error("Código incorrecto");
 
+      // 2. Crear lead real
       const saveRes = await fetch(`${API_BASE}/save-lead`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -106,7 +105,12 @@ const ModernLeadForm = () => {
       });
 
       const saveData = await saveRes.json();
-      if (!saveData.success) throw new Error("Error en Notion");
+      if (!saveData.success) throw new Error("Error en registro");
+
+      // 🔥 3. DISPARO REAL DEL PIXEL (AQUÍ ES DONDE VA)
+      if (window.fbq) {
+        window.fbq('track', 'Lead');
+      }
 
       setStatus("success");
       setMessage("✅ Registro completado");
@@ -164,11 +168,9 @@ const ModernLeadForm = () => {
             required
           />
 
-          {/* 🔥 TELÉFONO CORREGIDO */}
           <PhoneInput
             country={country}
             enableSearch={true}
-            disableDropdown={false}
             value={formData.phone}
             onChange={(value) =>
               setFormData({ ...formData, phone: value })
@@ -178,13 +180,6 @@ const ModernLeadForm = () => {
               height: '48px',
               borderRadius: '8px',
               border: '1px solid #d1d5db'
-            }}
-            buttonStyle={{
-              borderTopLeftRadius: '8px',
-              borderBottomLeftRadius: '8px'
-            }}
-            containerStyle={{
-              width: '100%'
             }}
           />
 
