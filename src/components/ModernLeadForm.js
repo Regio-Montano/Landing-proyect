@@ -39,13 +39,12 @@ const ModernLeadForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔥 FUNCIÓN REAL PARA DISPARAR PIXEL (CON RETRY)
+  // 🔥 DISPARO DIRECTO + DEBUG REAL
   const firePixelLead = () => {
-    let attempts = 0;
+    console.log("🚀 INTENTANDO DISPARAR LEAD");
 
-    const interval = setInterval(() => {
+    try {
       if (typeof window !== "undefined" && typeof window.fbq === "function") {
-        console.log("🔥 FBQ LISTO → DISPARANDO LEAD");
 
         window.fbq('track', 'Lead', {
           content_name: 'registro_completado',
@@ -53,16 +52,15 @@ const ModernLeadForm = () => {
           currency: 'USD'
         });
 
-        clearInterval(interval);
+        console.log("✅ fbq track ejecutado");
+
+      } else {
+        console.warn("❌ fbq NO está disponible");
       }
 
-      attempts++;
-
-      if (attempts > 15) {
-        console.warn("❌ FBQ NUNCA CARGÓ");
-        clearInterval(interval);
-      }
-    }, 300);
+    } catch (err) {
+      console.error("💥 ERROR PIXEL:", err);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -133,7 +131,7 @@ const ModernLeadForm = () => {
       const saveData = await saveRes.json();
       if (!saveData.success) throw new Error("Error en registro");
 
-      // 🔥 3. DISPARAR PIXEL AQUÍ (YA CON TODO OK)
+      // 🔥 3. DISPARO INMEDIATO (SIN RETRY)
       firePixelLead();
 
       setStatus("success");
