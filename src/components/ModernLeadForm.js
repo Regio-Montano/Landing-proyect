@@ -39,6 +39,21 @@ const ModernLeadForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const firePixelLead = () => {
+    if (typeof window !== "undefined" && typeof window.fbq === "function") {
+      console.log("🔥 FB PIXEL DISPARANDO LEAD");
+
+      window.fbq('track', 'Lead', {
+        content_name: 'registro_completado',
+        value: 1,
+        currency: 'USD'
+      });
+
+    } else {
+      console.warn("❌ fbq NO está cargado");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -92,7 +107,7 @@ const ModernLeadForm = () => {
       const data = await res.json();
       if (!data.success) throw new Error("Código incorrecto");
 
-      // 2. Crear lead real
+      // 2. Guardar lead
       const saveRes = await fetch(`${API_BASE}/save-lead`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,10 +122,10 @@ const ModernLeadForm = () => {
       const saveData = await saveRes.json();
       if (!saveData.success) throw new Error("Error en registro");
 
-      // 🔥 3. DISPARO REAL DEL PIXEL (AQUÍ ES DONDE VA)
-      if (window.fbq) {
-        window.fbq('track', 'Lead');
-      }
+      // 🔥 3. DISPARO DEL PIXEL (CON RETRY)
+      setTimeout(() => {
+        firePixelLead();
+      }, 500);
 
       setStatus("success");
       setMessage("✅ Registro completado");
