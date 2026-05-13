@@ -156,21 +156,60 @@ const ModernLeadForm = () => {
     fontSize: '0.95rem',
   };
 
+  const cardStyle = {
+    opacity: 1,
+    backgroundColor: '#000000',
+    color: '#ffffff',
+    border: '1px solid #0066FF',
+    borderRadius: '20px',
+    padding: '32px',
+    maxWidth: '448px',
+    margin: '0 auto',
+    boxShadow: '0 0 30px rgba(0,102,255,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
+  };
+
+  if (status === 'success') {
+    return (
+      <motion.div
+        style={cardStyle}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%', margin: '0 auto 24px',
+            background: 'linear-gradient(135deg, #0066FF, #D4AF37)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.8rem',
+            boxShadow: '0 0 30px rgba(0,102,255,0.4)',
+          }}>
+            ✓
+          </div>
+
+          <div style={{
+            height: 1,
+            background: 'linear-gradient(90deg, transparent, #0066FF, #D4AF37, transparent)',
+            marginBottom: 24,
+          }} />
+
+          <p style={{
+            color: '#ffffff',
+            fontSize: '1rem',
+            lineHeight: 1.75,
+            fontWeight: 500,
+          }}>
+            {message}
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
-      style={{
-        opacity: 1,
-        backgroundColor: '#000000',
-        color: '#ffffff',
-        border: '1px solid #0066FF',
-        borderRadius: '20px',
-        padding: '32px',
-        maxWidth: '448px',
-        margin: '0 auto',
-        boxShadow: '0 0 30px rgba(0,102,255,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
-      }}
+      style={cardStyle}
     >
-
 
       <h2 style={{ fontSize: '1.4rem', fontWeight: 800, textAlign: 'center', marginBottom: '24px', color: '#ffffff', letterSpacing: '-0.01em' }}>
         Regístrate 🚀
@@ -179,7 +218,7 @@ const ModernLeadForm = () => {
       {message && (
         <div style={{
           textAlign: 'center', marginBottom: '16px', fontWeight: 600, fontSize: '0.9rem',
-          color: status === 'success' ? '#ffffff' : '#f87171',
+          color: '#f87171',
         }}>
           {message}
         </div>
