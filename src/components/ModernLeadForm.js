@@ -145,32 +145,51 @@ const ModernLeadForm = () => {
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 14px',
+    backgroundColor: '#111111',
+    color: '#ffffff',
+    border: '1px solid #0066FF',
+    borderRadius: '10px',
+    outline: 'none',
+    fontSize: '0.95rem',
+  };
+
   return (
     <motion.div
       style={{
         opacity: 1,
-        backgroundColor: "#ffffff",
-        color: "#111827"
+        backgroundColor: '#000000',
+        color: '#ffffff',
+        border: '1px solid #0066FF',
+        borderRadius: '20px',
+        padding: '32px',
+        maxWidth: '448px',
+        margin: '0 auto',
+        boxShadow: '0 0 30px rgba(0,102,255,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
       }}
-      className="p-8 rounded-2xl max-w-md mx-auto shadow-xl border"
     >
 
-      <div className="text-xs mb-2 text-center font-medium">
+      <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: '6px', letterSpacing: '0.1em' }}>
         STEP: {step}
       </div>
 
-      <h2 className="text-2xl font-bold text-center mb-6">
+      <h2 style={{ fontSize: '1.4rem', fontWeight: 800, textAlign: 'center', marginBottom: '24px', color: '#ffffff', letterSpacing: '-0.01em' }}>
         Regístrate 🚀
       </h2>
 
       {message && (
-        <div className={`text-center mb-4 font-medium ${status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+        <div style={{
+          textAlign: 'center', marginBottom: '16px', fontWeight: 600, fontSize: '0.9rem',
+          color: status === 'success' ? '#4ade80' : '#f87171',
+        }}>
           {message}
         </div>
       )}
 
       {step === "form" ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           <input
             type="text"
@@ -178,7 +197,7 @@ const ModernLeadForm = () => {
             placeholder="Nombre completo"
             value={formData.name}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg"
+            style={inputStyle}
             required
           />
 
@@ -188,7 +207,7 @@ const ModernLeadForm = () => {
             placeholder="correo@email.com"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg"
+            style={inputStyle}
             required
           />
 
@@ -202,14 +221,41 @@ const ModernLeadForm = () => {
             inputStyle={{
               width: '100%',
               height: '48px',
-              borderRadius: '8px',
-              border: '1px solid #d1d5db'
+              backgroundColor: '#111111',
+              color: '#ffffff',
+              border: '1px solid #0066FF',
+              borderRadius: '10px',
+              paddingLeft: '52px',
+              fontSize: '0.95rem',
             }}
+            buttonStyle={{
+              backgroundColor: '#111111',
+              border: '1px solid #0066FF',
+              borderRight: 'none',
+              borderRadius: '10px 0 0 10px',
+            }}
+            containerStyle={{ width: '100%' }}
+            dropdownStyle={{ backgroundColor: '#111111', color: '#ffffff', border: '1px solid #0066FF' }}
           />
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold"
+            style={{
+              width: '100%',
+              padding: '14px',
+              background: 'linear-gradient(135deg, #0066FF 0%, #3399FF 50%, #D4AF37 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '1rem',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              letterSpacing: '0.02em',
+              boxShadow: '0 0 20px rgba(0,102,255,0.35)',
+              transition: 'opacity 0.2s, transform 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
           >
             {status === 'loading'
               ? <Loader className="animate-spin mx-auto" />
@@ -218,19 +264,34 @@ const ModernLeadForm = () => {
 
         </form>
       ) : (
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           <input
             type="text"
             placeholder="Código OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="w-full p-3 border rounded-lg text-center text-lg"
+            style={{ ...inputStyle, textAlign: 'center', fontSize: '1.2rem', letterSpacing: '0.2em' }}
           />
 
           <button
             onClick={verifyOTP}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold"
+            style={{
+              width: '100%',
+              padding: '14px',
+              background: 'linear-gradient(135deg, #0066FF 0%, #3399FF 50%, #D4AF37 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontSize: '1rem',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              letterSpacing: '0.02em',
+              boxShadow: '0 0 20px rgba(0,102,255,0.35)',
+              transition: 'opacity 0.2s, transform 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
           >
             {status === 'loading'
               ? <Loader className="animate-spin mx-auto" />
