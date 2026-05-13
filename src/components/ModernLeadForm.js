@@ -182,7 +182,7 @@ const ModernLeadForm = () => {
       {message && (
         <div style={{
           textAlign: 'center', marginBottom: '16px', fontWeight: 600, fontSize: '0.9rem',
-          color: status === 'success' ? '#4ade80' : '#f87171',
+          color: status === 'success' ? '#ffffff' : '#f87171',
         }}>
           {message}
         </div>
