@@ -145,6 +145,36 @@ const ModernLeadForm = () => {
     }
   };
 
+  // ── UI-only state: quiz previo al formulario ──────────
+  const [quizStep, setQuizStep] = useState(0);
+
+  const QUESTIONS = [
+    {
+      q: "¿Tienes experiencia previa en trading o inversiones?",
+      opts: ["No, soy principiante", "Algo básico", "Tengo experiencia"],
+    },
+    {
+      q: "¿Cuánto capital tienes disponible para empezar?",
+      opts: ["Menos de $500", "$500 – $2,000", "Más de $2,000"],
+    },
+    {
+      q: "¿Cuánto tiempo puedes dedicar al día?",
+      opts: ["30 min – 1 hora", "1 – 3 horas", "Más de 3 horas"],
+    },
+  ];
+
+  // ── Estilos reutilizables ─────────────────────────────
+  const cardStyle = {
+    backgroundColor: '#000000',
+    color: '#ffffff',
+    border: '1px solid #0066FF',
+    borderRadius: '20px',
+    padding: '32px',
+    maxWidth: '448px',
+    margin: '0 auto',
+    boxShadow: '0 0 30px rgba(0,102,255,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
+  };
+
   const inputStyle = {
     width: '100%',
     padding: '12px 14px',
@@ -156,19 +186,26 @@ const ModernLeadForm = () => {
     fontSize: '0.95rem',
   };
 
-  const cardStyle = {
-    opacity: 1,
-    backgroundColor: '#000000',
+  const btnStyle = {
+    width: '100%',
+    padding: '14px',
+    background: 'linear-gradient(135deg, #0066FF 0%, #3399FF 50%, #D4AF37 100%)',
     color: '#ffffff',
-    border: '1px solid #0066FF',
-    borderRadius: '20px',
-    padding: '32px',
-    maxWidth: '448px',
-    margin: '0 auto',
-    boxShadow: '0 0 30px rgba(0,102,255,0.2), inset 0 1px 0 rgba(255,255,255,0.04)',
+    fontWeight: 700,
+    fontSize: '1rem',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    letterSpacing: '0.02em',
+    boxShadow: '0 0 20px rgba(0,102,255,0.35)',
+    transition: 'opacity 0.2s, transform 0.2s',
   };
 
-  if (status === 'success') {
+  const hoverIn  = e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; };
+  const hoverOut = e => { e.currentTarget.style.opacity = '1';    e.currentTarget.style.transform = 'translateY(0)'; };
+
+  // ── 1. PANTALLA FINAL (registro completado) ───────────
+  if (status === 'success' && message.startsWith("Listo")) {
     return (
       <motion.div
         style={cardStyle}
@@ -186,19 +223,8 @@ const ModernLeadForm = () => {
           }}>
             ✓
           </div>
-
-          <div style={{
-            height: 1,
-            background: 'linear-gradient(90deg, transparent, #0066FF, #D4AF37, transparent)',
-            marginBottom: 24,
-          }} />
-
-          <p style={{
-            color: '#ffffff',
-            fontSize: '1rem',
-            lineHeight: 1.75,
-            fontWeight: 500,
-          }}>
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #0066FF, #D4AF37, transparent)', marginBottom: 24 }} />
+          <p style={{ color: '#ffffff', fontSize: '1rem', lineHeight: 1.75, fontWeight: 500 }}>
             {message}
           </p>
         </div>
@@ -206,20 +232,77 @@ const ModernLeadForm = () => {
     );
   }
 
+  // ── 2. PREGUNTAS DE CALIFICACIÓN ──────────────────────
+  if (quizStep < QUESTIONS.length) {
+    const { q, opts } = QUESTIONS[quizStep];
+    return (
+      <motion.div
+        key={quizStep}
+        style={cardStyle}
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Barra de progreso */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 24 }}>
+          {QUESTIONS.map((_, i) => (
+            <div key={i} style={{
+              flex: 1, height: 3, borderRadius: 99,
+              background: i <= quizStep ? 'linear-gradient(90deg, #0066FF, #D4AF37)' : 'rgba(255,255,255,0.1)',
+              transition: 'background 0.3s',
+            }} />
+          ))}
+        </div>
+
+        <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: 8, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          Pregunta {quizStep + 1} de {QUESTIONS.length}
+        </p>
+
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', marginBottom: 20, lineHeight: 1.4 }}>
+          {q}
+        </h3>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {opts.map(opt => (
+            <button
+              key={opt}
+              onClick={() => setQuizStep(quizStep + 1)}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#111111',
+                color: '#ffffff',
+                border: '1px solid #0066FF',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                textAlign: 'left',
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,102,255,0.15)'; e.currentTarget.style.borderColor = '#D4AF37'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.borderColor = '#0066FF'; }}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+    );
+  }
+
+  // ── 3. FORMULARIO DE REGISTRO ─────────────────────────
   return (
     <motion.div
       style={cardStyle}
+      initial={{ opacity: 0, x: 30 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
-
       <h2 style={{ fontSize: '1.4rem', fontWeight: 800, textAlign: 'center', marginBottom: '24px', color: '#ffffff', letterSpacing: '-0.01em' }}>
         Regístrate 🚀
       </h2>
 
       {message && (
-        <div style={{
-          textAlign: 'center', marginBottom: '16px', fontWeight: 600, fontSize: '0.9rem',
-          color: '#f87171',
-        }}>
+        <div style={{ textAlign: 'center', marginBottom: '16px', fontWeight: 600, fontSize: '0.9rem', color: '#f87171' }}>
           {message}
         </div>
       )}
@@ -251,87 +334,45 @@ const ModernLeadForm = () => {
             country={country}
             enableSearch={true}
             value={formData.phone}
-            onChange={(value) =>
-              setFormData({ ...formData, phone: value })
-            }
+            onChange={(value) => setFormData({ ...formData, phone: value })}
             inputStyle={{
-              width: '100%',
-              height: '48px',
-              backgroundColor: '#111111',
-              color: '#ffffff',
-              border: '1px solid #0066FF',
-              borderRadius: '10px',
-              paddingLeft: '52px',
-              fontSize: '0.95rem',
+              width: '100%', height: '48px',
+              backgroundColor: '#111111', color: '#ffffff',
+              border: '1px solid #0066FF', borderRadius: '10px',
+              paddingLeft: '52px', fontSize: '0.95rem',
             }}
             buttonStyle={{
               backgroundColor: '#111111',
-              border: '1px solid #0066FF',
-              borderRight: 'none',
+              border: '1px solid #0066FF', borderRight: 'none',
               borderRadius: '10px 0 0 10px',
             }}
             containerStyle={{ width: '100%' }}
             dropdownStyle={{ backgroundColor: '#111111', color: '#ffffff', border: '1px solid #0066FF' }}
           />
 
-          <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: 'linear-gradient(135deg, #0066FF 0%, #3399FF 50%, #D4AF37 100%)',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '1rem',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              letterSpacing: '0.02em',
-              boxShadow: '0 0 20px rgba(0,102,255,0.35)',
-              transition: 'opacity 0.2s, transform 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
-          >
-            {status === 'loading'
-              ? <Loader className="animate-spin mx-auto" />
-              : "Enviar"}
+          <button type="submit" style={btnStyle} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+            {status === 'loading' ? <Loader className="animate-spin mx-auto" /> : "Enviar"}
           </button>
 
         </form>
       ) : (
+        /* ── 4. INGRESO DE CÓDIGO OTP ──────────────────── */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: 4 }}>
+            Ingresa el código que recibiste por SMS 📲
+          </p>
 
           <input
             type="text"
-            placeholder="Código OTP"
+            placeholder="• • • • • •"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            style={{ ...inputStyle, textAlign: 'center', fontSize: '1.2rem', letterSpacing: '0.2em' }}
+            style={{ ...inputStyle, textAlign: 'center', fontSize: '1.4rem', letterSpacing: '0.3em' }}
           />
 
-          <button
-            onClick={verifyOTP}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: 'linear-gradient(135deg, #0066FF 0%, #3399FF 50%, #D4AF37 100%)',
-              color: '#ffffff',
-              fontWeight: 700,
-              fontSize: '1rem',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              letterSpacing: '0.02em',
-              boxShadow: '0 0 20px rgba(0,102,255,0.35)',
-              transition: 'opacity 0.2s, transform 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
-          >
-            {status === 'loading'
-              ? <Loader className="animate-spin mx-auto" />
-              : "Verificar código"}
+          <button onClick={verifyOTP} style={btnStyle} onMouseEnter={hoverIn} onMouseLeave={hoverOut}>
+            {status === 'loading' ? <Loader className="animate-spin mx-auto" /> : "Verificar código"}
           </button>
 
         </div>
