@@ -152,7 +152,7 @@ const App = () => {
               [t.stat3n, t.stat3l],
             ].map(([num, label]) => (
               <div key={label} className="text-center">
-                <div className="text-blue-gradient font-extrabold text-2xl md:text-3xl">{num}</div>
+                <div className="font-extrabold text-2xl md:text-3xl" style={{ color: '#D4AF37' }}>{num}</div>
                 <div className="text-white/50 text-sm mt-1 uppercase tracking-widest">{label}</div>
               </div>
             ))}

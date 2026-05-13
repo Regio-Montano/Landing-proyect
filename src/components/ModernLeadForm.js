@@ -171,9 +171,6 @@ const ModernLeadForm = () => {
       }}
     >
 
-      <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: '6px', letterSpacing: '0.1em' }}>
-        STEP: {step}
-      </div>
 
       <h2 style={{ fontSize: '1.4rem', fontWeight: 800, textAlign: 'center', marginBottom: '24px', color: '#ffffff', letterSpacing: '-0.01em' }}>
         Regístrate 🚀
