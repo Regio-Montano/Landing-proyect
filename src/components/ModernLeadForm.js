@@ -147,19 +147,37 @@ const ModernLeadForm = () => {
 
   // ── UI-only state: quiz previo al formulario ──────────
   const [quizStep, setQuizStep] = useState(0);
+  const [blocked, setBlocked] = useState(null); // mensaje de bloqueo o null
 
   const QUESTIONS = [
     {
       q: "¿Tienes experiencia previa en trading o inversiones?",
-      opts: ["No, soy principiante", "Algo básico", "Tengo experiencia"],
+      opts: [
+        { label: "No, soy principiante",  block: null },
+        { label: "Algo básico",            block: null },
+        { label: "Tengo experiencia",      block: null },
+      ],
     },
     {
-      q: "¿Cuánto capital tienes disponible para empezar?",
-      opts: ["Menos de $500", "$500 – $2,000", "Más de $2,000"],
+      q: "¿Necesitas consultar con alguien antes de tomar decisiones de inversión?",
+      opts: [
+        { label: "Soy independiente en mis decisiones financieras", block: null },
+        { label: "Necesito consultarlo con alguien",                block: null },
+      ],
     },
     {
-      q: "¿Cuánto tiempo puedes dedicar al día?",
-      opts: ["30 min – 1 hora", "1 – 3 horas", "Más de 3 horas"],
+      q: "Para acceder a TradingPro necesitas una inversión de 199 USD. ¿Cuál describe tu situación real?",
+      opts: [
+        { label: "Puedo invertir 199 USD en mi desarrollo profesional ahora mismo", block: null },
+        { label: "No tengo capacidad de inversión en este momento", block: "Entendemos tu situación. Cuando estés listo estaremos aquí para ayudarte." },
+      ],
+    },
+    {
+      q: "Trabajamos únicamente con personas serias. Reservamos un espacio 1 a 1 exclusivo para ti. ¿Te comprometes?",
+      opts: [
+        { label: "✅ Me comprometo a asistir puntual y contestar la llamada de mi asesor", block: null },
+        { label: "❌ No puedo garantizar mi asistencia", block: "Solo trabajamos con personas comprometidas. Cuando estés listo, vuelve." },
+      ],
     },
   ];
 
@@ -232,7 +250,35 @@ const ModernLeadForm = () => {
     );
   }
 
-  // ── 2. PREGUNTAS DE CALIFICACIÓN ──────────────────────
+  // ── 2. FLUJO BLOQUEADO ────────────────────────────────
+  if (blocked) {
+    return (
+      <motion.div
+        style={cardStyle}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: '50%', margin: '0 auto 20px',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.6rem',
+          }}>
+            🔒
+          </div>
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #0066FF, transparent)', marginBottom: 20 }} />
+          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.95rem', lineHeight: 1.75 }}>
+            {blocked}
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // ── 3. PREGUNTAS DE CALIFICACIÓN ──────────────────────
   if (quizStep < QUESTIONS.length) {
     const { q, opts } = QUESTIONS[quizStep];
     return (
@@ -258,15 +304,21 @@ const ModernLeadForm = () => {
           Pregunta {quizStep + 1} de {QUESTIONS.length}
         </p>
 
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', marginBottom: 20, lineHeight: 1.4 }}>
+        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', marginBottom: 20, lineHeight: 1.5 }}>
           {q}
         </h3>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map(opt => (
             <button
-              key={opt}
-              onClick={() => setQuizStep(quizStep + 1)}
+              key={opt.label}
+              onClick={() => {
+                if (opt.block) {
+                  setBlocked(opt.block);
+                } else {
+                  setQuizStep(quizStep + 1);
+                }
+              }}
               style={{
                 padding: '12px 16px',
                 backgroundColor: '#111111',
@@ -274,14 +326,15 @@ const ModernLeadForm = () => {
                 border: '1px solid #0066FF',
                 borderRadius: '10px',
                 cursor: 'pointer',
-                fontSize: '0.95rem',
+                fontSize: '0.9rem',
                 textAlign: 'left',
+                lineHeight: 1.4,
                 transition: 'background 0.2s, border-color 0.2s',
               }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,102,255,0.15)'; e.currentTarget.style.borderColor = '#D4AF37'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#111111'; e.currentTarget.style.borderColor = '#0066FF'; }}
             >
-              {opt}
+              {opt.label}
             </button>
           ))}
         </div>
