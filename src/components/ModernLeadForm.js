@@ -137,7 +137,7 @@ const ModernLeadForm = () => {
       }, 300);
 
       setStatus("success");
-      setMessage("✅ Registro completado");
+      setMessage("Listo, ya estás dentro. En unos minutos recibirás una llamada de nuestro equipo para finalizar tu activación. Contestar es importante para continuar.");
 
     } catch (err) {
       setStatus("error");
