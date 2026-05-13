@@ -29,22 +29,6 @@ const Footer = ({ lang = "es" }) => {
         textAlign: "center",
       }}
     >
-      {/* Logo / brand */}
-      <div
-        style={{
-          fontSize: "1.4rem",
-          fontWeight: 800,
-          letterSpacing: "-0.02em",
-          marginBottom: 16,
-          background: `linear-gradient(135deg, ${GOLD}, #FFD700, ${GOLD})`,
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-        }}
-      >
-        marketcorp.org
-      </div>
-
       {/* Divider line */}
       <div
         style={{
